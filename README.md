@@ -12,7 +12,7 @@
 - **develop**: 기능 통합 브랜치
 - **feature**: 기능 개발 브랜치
   - 네이밍 규칙: `feat/{issue-number}-{description}`
-  - ex) `feat/4-dashboard-chart
+  - ex) `feat/4-dashboard-chart`
 
 ### 작업 흐름
 1. 작업 단위로 Issue 생성
