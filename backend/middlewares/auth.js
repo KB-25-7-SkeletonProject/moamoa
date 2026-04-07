@@ -1,3 +1,5 @@
+import db from "../db.json";
+
 export default (req, res, next) => {
   const auth = req.headers.authorization;
 
@@ -7,11 +9,14 @@ export default (req, res, next) => {
 
   const userId = auth.split(" ")[1];
 
-  if (!userId) {
-    return res.status(401).json({ message: "Invalid token" });
+  const user = db.users.find(u => u.id === userId);
+
+  if (!user) {
+    return res.status(401).json({ message: "Invalid user" });
   }
 
   req.userId = userId;
+  req.user = user; // 🔥 이거 추가
 
   next();
 };
