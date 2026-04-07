@@ -1,0 +1,74 @@
+{
+  "users": [
+    {
+      "id": "u001",
+      "email": "test@test.com",
+      "password": "1234",
+      "name": "홍길동",
+      "createdAt": "2026-04-01T09:00:00",
+      "updatedAt": "2026-04-01T10:00:00"
+    }
+  ],
+
+  "records": [
+    {
+      "id": "r001",
+      "userId": "u001",
+      "type": "expense",
+      "amount": 15000,
+      "categoryId": "c001",
+      "memo": "점심 식사",
+      "date": "2026-04-07",
+      "createdAt": "2026-04-07T10:12:33",
+      "updatedAt": "2026-04-09T08:00:00"
+    },
+    {
+      "id": "r002",
+      "userId": "u001",
+      "type": "income",
+      "amount": 3000000,
+      "categoryId": "c005",
+      "memo": "월급이다",
+      "date": "2026-04-01",
+      "createdAt": "2026-04-01T09:03:10",
+      "updatedAt": "2026-04-02T08:00:00"
+    }
+  ],
+  "categories": [
+    { "id": "c001", "name": "식비", "type": "expense" },
+    { "id": "c002", "name": "교통", "type": "expense" },
+    { "id": "c003", "name": "쇼핑", "type": "expense" },
+    { "id": "c004", "name": "의료", "type": "expense" },
+    { "id": "c005", "name": "교육", "type": "expense" },
+    { "id": "c006", "name": "여가", "type": "expense" },
+    { "id": "c007", "name": "주거", "type": "expense" },
+    { "id": "c008", "name": "기타", "type": "expense" },
+    
+    { "id": "c101", "name": "급여", "type": "income" },
+    { "id": "c102", "name": "용돈", "type": "income" },
+    { "id": "c103", "name": "부수입", "type": "income" },
+    { "id": "c104", "name": "이자소득", "type": "income" },
+    { "id": "c105", "name": "상여금", "type": "income" },
+    { "id": "c106", "name": "주식/배당", "type": "income" },
+    { "id": "c107", "name": "포인트", "type": "income" },
+    { "id": "c108", "name": "기타", "type": "income" }
+  ],
+  "attendances": [
+    {
+      "id": "a001",
+      "userId": "u001",
+      "date": "2026-04-07",
+      "createdAt": "2026-04-07T00:01:02"
+    }
+  ],
+
+  "ads": [
+    {
+      "id": "ad01",
+      "title": "카드 추천",
+      "imageUrl": "https://example.com/ad1.png",
+      "link": "https://example.com",
+      "createdAt": "2026-04-01T00:00:00"
+    }
+  ]
+}
