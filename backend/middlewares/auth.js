@@ -16,7 +16,7 @@ export default (req, res, next) => {
   }
 
   req.userId = userId;
-  req.user = user; // 🔥 이거 추가
+  req.user = user;
 
   next();
 };
