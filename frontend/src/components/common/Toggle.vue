@@ -78,7 +78,7 @@ export default {
   border-radius: 50%;
   background: var(--white);
   transition: transform 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-knob);
 }
 
 .track.on .knob {

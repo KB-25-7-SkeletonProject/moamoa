@@ -83,7 +83,7 @@ export default {
 
 .inputError {
   border-color: var(--expense);
-  background: rgba(216, 67, 67, 0.04);
+  background: var(--surface-expense-softest);
 }
 
 .inputError:focus {

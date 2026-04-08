@@ -22,7 +22,7 @@ const handleClick = () => {
 
     background: var(--primary);
     color: var(--text);
-    font-size: 24px;
+    font-size: var(--font-size-24);
 
     z-index: 1000; 
     cursor: pointer;

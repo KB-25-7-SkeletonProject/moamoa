@@ -79,7 +79,7 @@ export default {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -102,7 +102,7 @@ export default {
   right: 10px;
   border: none;
   background: transparent;
-  font-size: 16px;
+  font-size: var(--font-size-16);
   cursor: pointer;
 }
 

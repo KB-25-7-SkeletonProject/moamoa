@@ -36,19 +36,19 @@ const handleClick = () => {
 
 /* 아이콘 */
 .icon {
-    font-size: 22px;
+    font-size: var(--font-size-22);
     color: var(--color);
 }
 
 /* 텍스트 */
 .label {
-    font-size: 12px;
+    font-size: var(--font-size-12);
     color: var(--color);
 }
 
 /* 활성 상태 */
 .item {
-    --color: #999;
+    --color: var(--text-disabled);
 }
 
 .item.active {

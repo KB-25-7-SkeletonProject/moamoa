@@ -77,7 +77,7 @@ export default {
 }
 
 .adIcon {
-  font-size: 24px;
+  font-size: var(--font-size-24);
   font-weight: var(--font-weight-700);
   line-height: 1;
   flex-shrink: 0;

@@ -168,7 +168,7 @@ export default {
   height: 32px;
   background: transparent;
   color: var(--text);
-  font-size: 20px;
+  font-size: var(--font-size-20);
   border-radius: var(--radius-sm);
   flex-shrink: 0;
 }
@@ -179,7 +179,7 @@ export default {
   height: 36px;
   background: var(--surface-muted);
   border-radius: var(--radius-full);
-  font-size: 16px;
+  font-size: var(--font-size-16);
   color: var(--text);
   flex-shrink: 0;
 }
