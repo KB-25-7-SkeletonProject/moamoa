@@ -27,11 +27,11 @@ defineProps({
 
 /* type */
 .income {
-  background: rgba(46,204,113,0.1);
+  background: var(--surface-income-soft);
   color: var(--income);
 }
 .expense {
-  background: rgba(231,76,60,0.1);
+  background: var(--surface-expense-soft);
   color: var(--expense);
 }
 </style>

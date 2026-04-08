@@ -50,11 +50,11 @@ export default {
 }
 
 .variant_income {
-  background: rgba(82, 170, 6, 0.08);
+  background: var(--surface-income-card);
 }
 
 .variant_expense {
-  background: rgba(216, 67, 67, 0.08);
+  background: var(--surface-expense-card);
 }
 
 .title {

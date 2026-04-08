@@ -51,7 +51,7 @@ export default {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 16px;
+  font-size: var(--font-size-16);
   color: var(--text-muted);
   padding: 0;
   margin-left: 4px;

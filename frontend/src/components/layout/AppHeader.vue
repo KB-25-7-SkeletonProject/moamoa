@@ -34,13 +34,13 @@ const props = defineProps({
 }
 
 .title {
-    font-size: 18px;
-    font-weight: 700;
+    font-size: var(--font-size-18);
+    font-weight: var(--font-weight-700);
     color: var(--text);
 }
 
 .desc {
-    font-size: 12px;
+    font-size: var(--font-size-12);
     color: var(--text-secondary);
 }
 </style>

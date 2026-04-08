@@ -75,11 +75,11 @@ export default {
 }
 
 .itemSelected .itemIconWrap {
-  background: rgba(255, 204, 0, 0.22);
+  background: var(--surface-primary-soft);
 }
 
 .itemIcon {
-  font-size: 18px;
+  font-size: var(--font-size-18);
   line-height: 1;
   text-align: center;
   font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;

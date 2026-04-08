@@ -34,7 +34,7 @@
 
 /* 텍스트 */
 .text {
-  font-size: 12px;
+  font-size: var(--font-size-12);
   color: var(--text-secondary);
   white-space: nowrap;
 }

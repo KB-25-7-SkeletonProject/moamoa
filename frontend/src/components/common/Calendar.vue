@@ -135,7 +135,7 @@ export default {
   background: var(--surface-muted);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 16px;
+  font-size: var(--font-size-16);
   color: var(--text-muted);
   display: flex;
   align-items: center;
@@ -238,12 +238,12 @@ export default {
   border-radius: 50%;
   background: var(--primary);
   color: var(--text);
-  font-size: 10px;
+  font-size: var(--font-size-12);
   font-weight: var(--font-weight-700);
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-strong);
 }
 </style>
