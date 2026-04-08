@@ -8,9 +8,12 @@
     >
       <div
         class="card"
-        :style="{ maxWidth: maxWidth + 'px' }"
+        :style="{ maxWidth: resolvedMaxWidth + 'px' }"
         @click.stop
       >
+        <button v-if="showClose" class="closeBtn" @click="$emit('close')" type="button">
+          ✕
+        </button>
         <slot></slot>
       </div>
     </div>
@@ -25,9 +28,28 @@ export default {
       type: Boolean,
       default: false
     },
+    size: {
+      type: String,
+      default: 'md',
+      validator: (value) => ['sm', 'md', 'lg'].includes(value)
+    },
     maxWidth: {
       type: Number,
       default: 360
+    },
+    showClose: {
+      type: Boolean,
+      default: false
+    }
+  },
+  computed: {
+    resolvedMaxWidth() {
+      if (this.maxWidth !== 360) {
+        return this.maxWidth;
+      }
+      if (this.size === 'sm') return 260;
+      if (this.size === 'lg') return 400;
+      return 320;
     }
   },
   watch: {
@@ -65,12 +87,23 @@ export default {
 }
 
 .card {
+  position: relative;
   background: var(--white);
   border-radius: var(--radius-lg);
   padding: 24px;
   box-shadow: var(--shadow-card-md);
   max-height: 80vh;
   overflow-y: auto;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 /* Transitions */

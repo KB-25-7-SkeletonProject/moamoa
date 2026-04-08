@@ -1,6 +1,6 @@
 <template>
-  <button :class="buttonClasses" v-bind="$attrs" @click="$emit('click', $event)">
-    <slot></slot>
+  <button :class="buttonClasses" :disabled="disabled" v-bind="$attrs" @click="$emit('click', $event)">
+    <slot>{{ label }}</slot>
   </button>
 </template>
 
@@ -8,31 +8,55 @@
 export default {
   name: 'Button',
   props: {
+    label: String,
     variant: {
       type: String,
       default: 'primary',
       validator: function (value) {
-        return ['primary', 'toggle', 'back', 'icon'].indexOf(value) !== -1;
+        return ['primary', 'toggle', 'back', 'icon', 'outline', 'gray'].indexOf(value) !== -1;
+      }
+    },
+    size: {
+      type: String,
+      default: 'md',
+      validator: function (value) {
+        return ['sm', 'md', 'lg'].indexOf(value) !== -1;
       }
     },
     active: {
       type: Boolean,
       default: false
     },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
     activeColor: {
       type: String,
+      default: '',
       validator: function (value) {
         return !value || ['expense', 'income'].indexOf(value) !== -1;
       }
     }
   },
   computed: {
+    resolvedActiveColor() {
+      if (this.activeColor) {
+        return this.activeColor;
+      }
+
+      const slotText = this.$slots.default?.()[0]?.children;
+      if (slotText === '지출') return 'expense';
+      if (slotText === '수입') return 'income';
+      return '';
+    },
     buttonClasses() {
       return [
         'base',
         this.variant,
+        `size_${this.size}`,
         this.variant === 'toggle' && this.active ? 'toggleActive' : '',
-        this.variant === 'toggle' && this.active && this.activeColor ? this.activeColor : ''
+        this.variant === 'toggle' && this.active && this.resolvedActiveColor ? this.resolvedActiveColor : ''
       ].filter(Boolean).join(' ');
     }
   }
@@ -40,12 +64,7 @@ export default {
 </script>
 
 <style scoped>
-/* ============================================================
-   Button.module.css
-   Figma 수치 그대로 반영
-   ============================================================ */
 
-/* ── 공통 기반 ── */
 .base {
   display: inline-flex;
   align-items: center;
@@ -59,45 +78,80 @@ export default {
   transition: opacity 0.15s ease, background 0.15s ease;
   white-space: nowrap;
   text-decoration: none;
+  border-radius: var(--radius-md);
+}
+
+/* ── size ── */
+.size_sm {
+  padding: 10px 12px;
+  font-size: var(--font-size-14);
+}
+
+.size_md {
+  padding: 12px 16px;
+  font-size: var(--font-size-16);
+}
+
+.size_lg {
+  padding: 14px 20px;
+  font-size: var(--font-size-16);
 }
 
 /* ── variant: primary ── */
-/* Figma: bg #FFCC00 / h-56 / radius-12 / font-700 / size-17 */
 .primary {
   width: 100%;
-  height: 52px;                         /* mobile 기본 */
+  min-height: 52px;
   background: var(--primary);
   color: var(--text);
-  font-size: var(--font-size-16);
   font-weight: var(--font-weight-700);
   border-radius: var(--radius-lg);
 }
 .primary:hover { opacity: 0.88; }
 .primary:active { opacity: 0.8; transform: scale(0.99); }
 
-/* tablet+ */
-@media (min-width: 768px) {
-  .primary {
-    height: 54px;
-    font-size: var(--font-size-17);
-  }
+.primary.size_sm {
+  min-height: 40px;
 }
-@media (min-width: 1280px) {
-  .primary {
-    height: 56px;
-  }
+
+.primary.size_lg {
+  min-height: 56px;
+  font-size: var(--font-size-17);
+}
+
+.outline {
+  background: var(--white);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  font-weight: var(--font-weight-700);
+  width: 100%;
+  min-height: 52px;
+  border-radius: var(--radius-lg);
+}
+
+.gray {
+  background: var(--border);
+  color: var(--text-muted);
+  font-weight: var(--font-weight-700);
+}
+
+.outline.size_sm {
+  min-height: 40px;
+}
+
+.outline.size_lg {
+  min-height: 56px;
+  font-size: var(--font-size-17);
 }
 
 /* ── variant: toggle ── */
-/* Figma: bg transparent / h-40~42 / radius-10 / font-500 / size-14 / color #aaa */
 .toggle {
   flex: 1;
   height: 40px;
   background: transparent;
   color: var(--text-muted);
-  font-size: var(--font-size-14);
   font-weight: var(--font-weight-500);
   border-radius: var(--radius-md);
+  padding: 0 16px;
 }
 .toggleActive {
   background: var(--white);
@@ -109,8 +163,6 @@ export default {
 /* 수입 활성 → 초록 */
 .income  { color: var(--income) !important; }
 
-/* ── variant: back ── */
-/* Figma: 32×32 / bg none / font-size-20 */
 .back {
   width: 32px;
   height: 32px;
@@ -122,8 +174,6 @@ export default {
 }
 .back:hover { background: var(--surface-muted); }
 
-/* ── variant: icon ── */
-/* Figma: 36×36 / 원형 / bg #F7F7F7 */
 .icon {
   width: 36px;
   height: 36px;
@@ -134,4 +184,12 @@ export default {
   flex-shrink: 0;
 }
 .icon:hover { background: var(--border); }
+
+.base:disabled {
+  background: var(--border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
 </style>

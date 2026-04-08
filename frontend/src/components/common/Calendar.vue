@@ -27,22 +27,23 @@
     <!-- Grid -->
     <div class="grid">
       <!-- Empty cells for month start offset -->
-      <span v-for="i in firstDow" :key="`empty-${i}`" />
+      <span v-for="i in resolvedFirstDow" :key="`empty-${i}`" class="emptyCell" />
 
       <!-- Day cells -->
       <button
-        v-for="day in days"
+        v-for="day in normalizedDays"
         :key="day.date"
         type="button"
-        :class="['day', 
-          day.date === today ? 'today' : '', 
-          day.mark === 'expense' ? 'hasExpense' : '',
-          day.mark === 'income' ? 'hasIncome' : ''
-        ]"
+        :class="['day', day.date === today ? 'today' : '']"
         @click="$emit('dayClick', day)"
       >
+        <span class="dayNumber">{{ day.date }}</span>
         <span v-if="day.checked" class="checkBadge">✓</span>
-        {{ day.date }}
+        <span
+          v-if="day.mark === 'expense' || day.mark === 'income'"
+          :class="['markDot', day.mark === 'expense' ? 'markExpense' : 'markIncome']"
+          aria-hidden="true"
+        />
       </button>
     </div>
   </div>
@@ -51,6 +52,7 @@
 <script>
 export default {
   name: 'Calendar',
+  emits: ['prev', 'next', 'dayClick'],
   props: {
     year: {
       type: Number,
@@ -64,11 +66,32 @@ export default {
       type: Array,
       required: true
     },
-    firstDow: {
-      type: Number,
-      default: 0
-    },
+    firstDow: Number,
     today: Number
+  },
+  computed: {
+    resolvedFirstDow() {
+      if (typeof this.firstDow === 'number') {
+        return this.firstDow;
+      }
+      return new Date(this.year, this.month - 1, 1).getDay();
+    },
+    daysInMonth() {
+      return new Date(this.year, this.month, 0).getDate();
+    },
+    normalizedDays() {
+      const byDate = new Map(
+        this.days.map((day) => [day.date, day])
+      );
+
+      return Array.from({ length: this.daysInMonth }, (_, index) => {
+        const date = index + 1;
+        return {
+          date,
+          ...(byDate.get(date) || {})
+        };
+      });
+    }
   },
   data() {
     return {
@@ -79,9 +102,6 @@ export default {
 </script>
 
 <style scoped>
-/* ============================================================
-   Calendar Component Styles
-   ============================================================ */
 
 .wrap {
   background: var(--white);
@@ -155,20 +175,25 @@ export default {
   gap: 4px;
 }
 
+.emptyCell {
+  min-height: 40px;
+}
+
 .day {
   position: relative;
-  width: 36px;
-  height: 36px;
+  width: 100%;
+  min-height: 40px;
   border: none;
   background: transparent;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--font-size-14);
   color: var(--text);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  padding: 6px 4px 14px;
 }
 
 .day:hover {
@@ -180,35 +205,45 @@ export default {
   font-weight: var(--font-weight-700);
 }
 
-.day.hasExpense::after {
-  content: '';
+.dayNumber {
+  position: relative;
+  z-index: 1;
+  line-height: 1.2;
+}
+
+.markDot {
   position: absolute;
-  bottom: 2px;
+  bottom: 5px;
   left: 50%;
   transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  background: var(--expense);
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
 }
 
-.day.hasIncome::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
+.markExpense {
+  background: var(--expense);
+}
+
+.markIncome {
   background: var(--income);
-  border-radius: 50%;
 }
 
 .checkBadge {
   position: absolute;
-  top: 2px;
-  right: 2px;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--text);
   font-size: 10px;
-  color: var(--primary);
+  font-weight: var(--font-weight-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
 }
 </style>

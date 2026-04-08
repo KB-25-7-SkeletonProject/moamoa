@@ -1,13 +1,16 @@
 <template>
   <div class="record">
-    <div class="recordIcon" :style="{ background: iconBg }">
-      {{ icon }}
+    <div class="recordIcon" :style="recordIconStyle">
+      <span class="recordEmoji">{{ resolvedIcon }}</span>
     </div>
     <div class="recordInfo">
-      <span class="recordCategory">{{ category }}</span>
-      <span v-if="memo" class="recordMemo">{{ memo }}</span>
+      <span class="recordTitle">{{ resolvedTitle }}</span>
+      <span v-if="metaText" class="recordMeta">{{ metaText }}</span>
     </div>
-    <span :class="['recordAmount', type]">{{ amount }}</span>
+    <div class="recordAmountWrap">
+      <span :class="['recordAmount', type]">{{ amount }}</span>
+      <span v-if="balance" class="recordBalance">잔액 {{ balance }}</span>
+    </div>
     <button v-if="onEdit" class="editBtn" @click="onEdit" aria-label="수정" type="button">
       ✏️
     </button>
@@ -15,19 +18,57 @@
 </template>
 
 <script>
+const CATEGORY_ICON_MAP = {
+  급여: '💰',
+  용돈: '🧧',
+  부수입: '💵',
+  이자소득: '💸',
+  상여금: '🤑',
+  '주식/배당': '📈',
+  포인트: '🪙',
+  기타: '📦',
+  식비: '🍔',
+  교통: '🚇',
+  쇼핑: '🛍️',
+  의료: '💊',
+  교육: '📚',
+  여가: '🎬',
+  주거: '🏠'
+}
+
 export default {
   name: 'RecordCard',
   props: {
     iconBg: String,
     icon: String,
+    title: String,
     category: String,
     memo: String,
+    createdAt: String,
     amount: String,
+    balance: String,
     type: {
       type: String,
       validator: (value) => !value || ['income', 'expense'].includes(value)
     },
     onEdit: Function
+  },
+  computed: {
+    recordIconStyle() {
+      return {
+        background: this.iconBg || 'var(--surface-muted)'
+      };
+    },
+    resolvedTitle() {
+      return this.title || this.category;
+    },
+    metaText() {
+      return [this.memo, this.createdAt].filter(Boolean).join(' · ');
+    },
+    resolvedIcon() {
+      if (this.icon) return this.icon;
+      return CATEGORY_ICON_MAP[this.category] || '📦';
+    }
   }
 }
 </script>
@@ -44,13 +85,20 @@ export default {
 }
 
 .recordIcon {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.recordEmoji {
+  font-size: 18px;
+  line-height: 1;
+  text-align: center;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
 }
 
 .recordInfo {
@@ -58,21 +106,31 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 }
 
-.recordCategory {
-  font-size: var(--font-size-14);
-  font-weight: var(--font-weight-500);
+.recordTitle {
+  font-size: var(--font-size-16);
+  font-weight: var(--font-weight-700);
+  color: var(--text);
 }
 
-.recordMemo {
-  font-size: var(--font-size-12);
+.recordMeta {
+  font-size: var(--font-size-13);
   color: var(--text-muted);
 }
 
+.recordAmountWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
 .recordAmount {
-  font-size: var(--font-size-14);
-  font-weight: 600;
+  font-size: var(--font-size-16);
+  font-weight: var(--font-weight-700);
 }
 
 .recordAmount.income {
@@ -81,6 +139,11 @@ export default {
 
 .recordAmount.expense {
   color: var(--expense);
+}
+
+.recordBalance {
+  font-size: var(--font-size-13);
+  color: var(--text-muted);
 }
 
 .editBtn {

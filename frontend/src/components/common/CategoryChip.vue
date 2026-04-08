@@ -33,13 +33,13 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
   background: var(--surface-muted);
   border-radius: var(--radius-xl);
-  font-size: var(--font-size-14);
   color: var(--text);
   cursor: pointer;
   border: none;
+  padding: 8px 12px;
+  font-size: var(--font-size-14);
 }
 
 .chipAdd {
