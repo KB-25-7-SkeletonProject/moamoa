@@ -1,6 +1,6 @@
 <template>
   <Card class="stats-card">
-    <h2 class="section-title">전월 비교</h2>
+    <h2 class="section-title">{{ title }}</h2>
     <div v-for="item in items" :key="item.label" class="comparison-row">
       <span class="comp-label">{{ item.label }}</span>
       <div class="comp-values">
@@ -18,6 +18,10 @@
 import Card from '@/components/common/Card.vue'
 
 defineProps({
+  title: {
+    type: String,
+    default: '전월 비교',
+  },
   items: {
     type: Array,
     default: () => [],
