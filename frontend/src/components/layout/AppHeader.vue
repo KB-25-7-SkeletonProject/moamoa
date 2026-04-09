@@ -1,8 +1,10 @@
 <template>
     <header class="header">
+        <div class="header-inner">
         <div class="text-group">
             <div class="title">{{ title }}</div>
             <div class="desc">{{ desc }}</div>
+        </div>
         </div>
     </header>
 </template>
@@ -17,14 +19,19 @@ const props = defineProps({
 <style scoped>
 .header {
     background: var(--primary);
-    padding: 16px;
-
-    display: flex;
-    align-items: center;
 
     position: sticky;
     top: 0;
     z-index: 999;
+}
+
+.header-inner {
+    width: min(100%, 1280px);
+    margin: 0 auto;
+    padding: 16px;
+
+    display: flex;
+    align-items: center;
 }
 
 .text-group {
@@ -42,5 +49,17 @@ const props = defineProps({
 .desc {
     font-size: var(--font-size-12);
     color: var(--text-secondary);
+}
+
+@media (min-width: 768px) {
+    .header-inner {
+        padding: 16px 32px;
+    }
+}
+
+@media (min-width: 1280px) {
+    .header-inner {
+        padding: 16px 48px;
+    }
 }
 </style>
