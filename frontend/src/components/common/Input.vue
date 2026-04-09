@@ -16,39 +16,43 @@
   </div>
 </template>
 
-<script>
-export default {
+<script setup>
+import { computed } from 'vue'
+
+defineOptions({
   name: 'Input',
-  inheritAttrs: false,
-  emits: ['update:modelValue'],
-  props: {
-    modelValue: {
-      type: [String, Number],
-      default: ''
-    },
-    label: String,
-    error: String,
-    className: String,
-    inputClass: String,
-    size: {
-      type: String,
-      default: '',
-      validator: (value) => !value || ['sm', 'md', 'lg'].includes(value)
-    },
-    id: String,
-    placeholder: String
+  inheritAttrs: false
+})
+
+defineEmits(['update:modelValue'])
+
+const props = defineProps({
+  modelValue: {
+    type: [String, Number],
+    default: ''
   },
-  computed: {
-    inputId() {
-      return this.id || (this.label ? this.label.replace(/\s+/g, '-').toLowerCase() : undefined);
-    },
-    resolvedInputClass() {
-      if (this.inputClass) return this.inputClass;
-      if (this.size) return `size_${this.size}`;
-      return '';
-    }
-  }
-}
+  label: String,
+  error: String,
+  className: String,
+  inputClass: String,
+  size: {
+    type: String,
+    default: '',
+    validator: (value) => !value || ['sm', 'md', 'lg'].includes(value)
+  },
+  id: String,
+  placeholder: String
+})
+
+const inputId = computed(() =>
+  props.id || (props.label ? props.label.replace(/\s+/g, '-').toLowerCase() : undefined)
+)
+
+const resolvedInputClass = computed(() => {
+  if (props.inputClass) return props.inputClass
+  if (props.size) return `size_${props.size}`
+  return ''
+})
 </script>
 
 <style scoped>

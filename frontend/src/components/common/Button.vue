@@ -4,63 +4,64 @@
   </button>
 </template>
 
-<script>
-export default {
-  name: 'Button',
-  props: {
-    label: String,
-    variant: {
-      type: String,
-      default: 'primary',
-      validator: function (value) {
-        return ['primary', 'toggle', 'back', 'icon', 'outline', 'gray'].indexOf(value) !== -1;
-      }
-    },
-    size: {
-      type: String,
-      default: 'md',
-      validator: function (value) {
-        return ['sm', 'md', 'lg'].indexOf(value) !== -1;
-      }
-    },
-    active: {
-      type: Boolean,
-      default: false
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    activeColor: {
-      type: String,
-      default: '',
-      validator: function (value) {
-        return !value || ['expense', 'income'].indexOf(value) !== -1;
-      }
-    }
-  },
-  computed: {
-    resolvedActiveColor() {
-      if (this.activeColor) {
-        return this.activeColor;
-      }
+<script setup>
+import { computed, useSlots } from 'vue'
 
-      const slotText = this.$slots.default?.()[0]?.children;
-      if (slotText === '지출') return 'expense';
-      if (slotText === '수입') return 'income';
-      return '';
-    },
-    buttonClasses() {
-      return [
-        'base',
-        this.variant,
-        `size_${this.size}`,
-        this.variant === 'toggle' && this.active ? 'toggleActive' : '',
-        this.variant === 'toggle' && this.active && this.resolvedActiveColor ? this.resolvedActiveColor : ''
-      ].filter(Boolean).join(' ');
-    }
+defineOptions({
+  name: 'Button'
+})
+
+defineEmits(['click'])
+
+const props = defineProps({
+  label: String,
+  variant: {
+    type: String,
+    default: 'primary',
+    validator: (value) => ['primary', 'toggle', 'back', 'icon', 'outline', 'gray'].includes(value)
+  },
+  size: {
+    type: String,
+    default: 'md',
+    validator: (value) => ['sm', 'md', 'lg'].includes(value)
+  },
+  active: {
+    type: Boolean,
+    default: false
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  activeColor: {
+    type: String,
+    default: '',
+    validator: (value) => !value || ['expense', 'income'].includes(value)
   }
-}
+})
+
+const slots = useSlots()
+
+const resolvedActiveColor = computed(() => {
+  if (props.activeColor) {
+    return props.activeColor
+  }
+
+  const slotText = slots.default?.()[0]?.children
+  if (slotText === '지출') return 'expense'
+  if (slotText === '수입') return 'income'
+  return ''
+})
+
+const buttonClasses = computed(() =>
+  [
+    'base',
+    props.variant,
+    `size_${props.size}`,
+    props.variant === 'toggle' && props.active ? 'toggleActive' : '',
+    props.variant === 'toggle' && props.active && resolvedActiveColor.value ? resolvedActiveColor.value : ''
+  ].filter(Boolean).join(' ')
+)
 </script>
 
 <style scoped>

@@ -13,19 +13,20 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'CategoryChip',
-  props: {
-    label: {
-      type: String,
-      required: true
-    },
-    onRemove: Function,
-    isAdd: Boolean,
-    onClick: Function
-  }
-}
+<script setup>
+defineOptions({
+  name: 'CategoryChip'
+})
+
+defineProps({
+  label: {
+    type: String,
+    required: true
+  },
+  onRemove: Function,
+  isAdd: Boolean,
+  onClick: Function
+})
 </script>
 
 <style scoped>

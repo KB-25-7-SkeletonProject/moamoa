@@ -14,21 +14,24 @@
   </label>
 </template>
 
-<script>
-export default {
-  name: 'Toggle',
-  props: {
-    checked: {
-      type: Boolean,
-      default: false
-    },
-    label: String,
-    disabled: {
-      type: Boolean,
-      default: false
-    }
+<script setup>
+defineOptions({
+  name: 'Toggle'
+})
+
+defineEmits(['change'])
+
+defineProps({
+  checked: {
+    type: Boolean,
+    default: false
+  },
+  label: String,
+  disabled: {
+    type: Boolean,
+    default: false
   }
-}
+})
 </script>
 
 <style scoped>

@@ -12,26 +12,27 @@
   </button>
 </template>
 
-<script>
-export default {
-  name: 'CategoryItem',
-  emits: ['click'],
-  props: {
-    label: {
-      type: String,
-      required: true
-    },
-    icon: String,
-    selected: Boolean,
-    onClick: Function
+<script setup>
+defineOptions({
+  name: 'CategoryItem'
+})
+
+const emit = defineEmits(['click'])
+
+const props = defineProps({
+  label: {
+    type: String,
+    required: true
   },
-  methods: {
-    handleClick(event) {
-      this.$emit('click', event);
-      if (this.onClick) {
-        this.onClick(event);
-      }
-    }
+  icon: String,
+  selected: Boolean,
+  onClick: Function
+})
+
+function handleClick(event) {
+  emit('click', event)
+  if (props.onClick) {
+    props.onClick(event)
   }
 }
 </script>
