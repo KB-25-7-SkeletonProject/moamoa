@@ -1,19 +1,13 @@
 <template>
   <div class="wrap">
-    <!-- Header -->
     <div class="header">
       <span class="monthLabel">{{ year }}년 {{ month }}월</span>
       <div class="navGroup">
-        <button class="navBtn" @click="$emit('prev')" aria-label="이전 달" type="button">
-          ‹
-        </button>
-        <button class="navBtn" @click="$emit('next')" aria-label="다음 달" type="button">
-          ›
-        </button>
+        <button class="navBtn" type="button" aria-label="이전 달" @click="$emit('prev')">‹</button>
+        <button class="navBtn" type="button" aria-label="다음 달" @click="$emit('next')">›</button>
       </div>
     </div>
 
-    <!-- Day names -->
     <div class="dayNames">
       <span
         v-for="(dayName, idx) in dayNames"
@@ -24,18 +18,16 @@
       </span>
     </div>
 
-    <!-- Grid -->
     <div class="grid">
-      <!-- Empty cells for month start offset -->
       <span v-for="i in resolvedFirstDow" :key="`empty-${i}`" class="emptyCell" />
 
-      <!-- Day cells -->
       <button
         v-for="day in normalizedDays"
         :key="day.date"
         type="button"
-        :class="['day', day.date === today ? 'today' : '']"
-        @click="$emit('dayClick', day)"
+        :disabled="!interactive"
+        :class="['day', day.date === today ? 'today' : '', !interactive ? 'readonly' : '']"
+        @click="handleDayClick(day)"
       >
         <span class="dayNumber">{{ day.date }}</span>
         <span v-if="day.checked" class="checkBadge">✓</span>
@@ -53,26 +45,30 @@
 import { computed } from 'vue'
 
 defineOptions({
-  name: 'Calendar'
+  name: 'Calendar',
 })
 
-defineEmits(['prev', 'next', 'dayClick'])
+const emit = defineEmits(['prev', 'next', 'dayClick'])
 
 const props = defineProps({
   year: {
     type: Number,
-    required: true
+    required: true,
   },
   month: {
     type: Number,
-    required: true
+    required: true,
   },
   days: {
     type: Array,
-    required: true
+    required: true,
   },
   firstDow: Number,
-  today: Number
+  today: Number,
+  interactive: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const dayNames = ['일', '월', '화', '수', '목', '금', '토']
@@ -81,6 +77,7 @@ const resolvedFirstDow = computed(() => {
   if (typeof props.firstDow === 'number') {
     return props.firstDow
   }
+
   return new Date(props.year, props.month - 1, 1).getDay()
 })
 
@@ -93,14 +90,21 @@ const normalizedDays = computed(() => {
     const date = index + 1
     return {
       date,
-      ...(byDate.get(date) || {})
+      ...(byDate.get(date) || {}),
     }
   })
 })
+
+function handleDayClick(day) {
+  if (!props.interactive) {
+    return
+  }
+
+  emit('dayClick', day)
+}
 </script>
 
 <style scoped>
-
 .wrap {
   background: var(--white);
   border-radius: var(--radius-lg);
@@ -174,13 +178,13 @@ const normalizedDays = computed(() => {
 }
 
 .emptyCell {
-  min-height: 40px;
+  min-height: 60px;
 }
 
 .day {
   position: relative;
   width: 100%;
-  min-height: 40px;
+  min-height: 60px;
   border: none;
   background: transparent;
   border-radius: var(--radius-sm);
@@ -190,12 +194,26 @@ const normalizedDays = computed(() => {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  padding: 6px 4px 14px;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+  padding: 9px 4px 21px;
 }
 
 .day:hover {
   background: var(--surface-muted);
+}
+
+.day.readonly {
+  cursor: default;
+}
+
+.day.readonly:hover {
+  background: transparent;
+}
+
+.day:disabled {
+  opacity: 1;
 }
 
 .day.today {
