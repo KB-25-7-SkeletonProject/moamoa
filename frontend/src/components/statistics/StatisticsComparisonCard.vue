@@ -5,7 +5,6 @@
       <span class="comp-label">{{ item.label }}</span>
       <div class="comp-values">
         <span class="comp-val prev">{{ item.previous }}</span>
-        <span class="comp-arrow">→</span>
         <span class="comp-current-group" :class="item.state">
           <span class="comp-val current">{{ item.current }}</span>
           <span v-if="item.changeLabel" class="comp-val change">{{ item.changeLabel }}</span>
@@ -44,7 +43,7 @@ defineProps({
 
 .comparison-row {
   display: grid;
-  grid-template-columns: minmax(64px, auto) max-content;
+  grid-template-columns: 88px minmax(0, 1fr);
   align-items: center;
   gap: 10px;
   padding: 10px 0;
@@ -58,14 +57,17 @@ defineProps({
 .comp-label {
   font-size: var(--font-size-13);
   color: var(--text-muted);
+  text-align: left;
   min-width: 0;
 }
 
 .comp-values {
   display: grid;
-  grid-template-columns: minmax(88px, max-content) 16px max-content;
+  grid-template-columns: 112px minmax(0, 1fr);
   align-items: center;
-  gap: 8px;
+  column-gap: 8px;
+  width: 100%;
+  min-width: 0;
 }
 
 .comp-val {
@@ -76,9 +78,15 @@ defineProps({
 
 .comp-current-group {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 0;
+  text-align: right;
+  justify-self: end;
+  width: max-content;
+  max-width: 100%;
 }
 
 .comp-current-group .comp-val {
@@ -102,28 +110,23 @@ defineProps({
 }
 
 .comp-val.change {
-  text-align: left;
+  text-align: right;
 }
 
 .comp-val.prev {
   color: var(--text-subtle);
   text-align: left;
-}
-
-.comp-arrow {
-  font-size: var(--font-size-12);
-  color: var(--border-muted);
-  text-align: center;
+  min-width: 0;
 }
 
 @media (max-width: 420px) {
   .comparison-row {
-    grid-template-columns: minmax(56px, auto) minmax(0, 1fr);
+    grid-template-columns: 72px minmax(0, 1fr);
     align-items: flex-start;
   }
 
   .comp-values {
-    grid-template-columns: minmax(72px, auto) 16px minmax(0, 1fr);
+    grid-template-columns: 76px minmax(0, 1fr);
   }
 }
 
@@ -134,8 +137,18 @@ defineProps({
 }
 
 @media (min-width: 768px) {
+  .comparison-row {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+
   .comp-values {
-    grid-template-columns: minmax(104px, max-content) 18px max-content;
+    grid-template-columns: 128px minmax(0, 1fr);
+  }
+
+  .comp-current-group {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
   }
 
   .comp-label,
@@ -146,15 +159,15 @@ defineProps({
 
 @media (min-width: 1280px) {
   .comparison-row {
-    grid-template-columns: minmax(72px, auto) max-content;
-  }
-
-  .comp-values {
-    grid-template-columns: minmax(112px, max-content) 20px max-content;
+    grid-template-columns: 104px minmax(0, 1fr);
   }
 
   .section-title {
     font-size: var(--font-size-16);
+  }
+
+  .comp-values {
+    grid-template-columns: 136px minmax(0, 1fr);
   }
 
   .comp-label,
