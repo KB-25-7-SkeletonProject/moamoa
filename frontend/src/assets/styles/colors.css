@@ -1,0 +1,25 @@
+:root {
+    --primary: #ffcc00;
+    --bg: #f5f6f8;
+    --white: #ffffff;
+    --text: #222222;
+    --text-secondary: #665500;
+    --border: #e5e5e5;
+    --text-muted: #666666;
+    --text-disabled: #999999;
+    --text-subtle: #bbbbbb;
+    --border-muted: #dddddd;
+    --overlay: rgba(0, 0, 0, 0.5);
+    --surface-muted: #f7f7f7;
+    --surface-soft: #fafafa;
+    --surface-highlight: #fffbe6;
+    --surface-primary-soft: rgba(255, 204, 0, 0.22);
+    --surface-income-soft: rgba(46, 204, 113, 0.1);
+    --surface-expense-soft: rgba(231, 76, 60, 0.1);
+    --surface-income-card: rgba(82, 170, 6, 0.08);
+    --surface-expense-card: rgba(216, 67, 67, 0.08);
+    --surface-expense-softest: rgba(216, 67, 67, 0.04);
+    --income: #52aa06;
+    --expense: #d84343;
+    --weekend-blue: #1976d2;
+}
