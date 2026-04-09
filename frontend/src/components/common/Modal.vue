@@ -20,56 +20,67 @@
   </transition>
 </template>
 
-<script>
-export default {
-  name: 'Modal',
-  props: {
-    isOpen: {
-      type: Boolean,
-      default: false
-    },
-    size: {
-      type: String,
-      default: 'md',
-      validator: (value) => ['sm', 'md', 'lg'].includes(value)
-    },
-    maxWidth: {
-      type: Number,
-      default: 360
-    },
-    showClose: {
-      type: Boolean,
-      default: false
-    }
+<script setup>
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+
+defineOptions({
+  name: 'Modal'
+})
+
+const emit = defineEmits(['close'])
+
+const props = defineProps({
+  isOpen: {
+    type: Boolean,
+    default: false
   },
-  computed: {
-    resolvedMaxWidth() {
-      if (this.maxWidth !== 360) {
-        return this.maxWidth;
-      }
-      if (this.size === 'sm') return 260;
-      if (this.size === 'lg') return 400;
-      return 320;
-    }
+  size: {
+    type: String,
+    default: 'md',
+    validator: (value) => ['sm', 'md', 'lg'].includes(value)
   },
-  watch: {
-    isOpen(newVal) {
-      // Lock/unlock scroll
-      document.body.style.overflow = newVal ? 'hidden' : '';
-    }
+  maxWidth: {
+    type: Number,
+    default: 360
   },
-  mounted() {
-    this.handleKeyDown = (e) => {
-      if (e.key === 'Escape' && this.isOpen) {
-        this.$emit('close');
-      }
-    };
-    document.addEventListener('keydown', this.handleKeyDown);
-  },
-  beforeUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown);
+  showClose: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const resolvedMaxWidth = computed(() => {
+  if (props.maxWidth !== 360) {
+    return props.maxWidth
+  }
+  if (props.size === 'sm') return 260
+  if (props.size === 'lg') return 400
+  return 320
+})
+
+function syncBodyScroll(isOpen) {
+  document.body.style.overflow = isOpen ? 'hidden' : ''
+}
+
+watch(() => props.isOpen, (newVal) => {
+  syncBodyScroll(newVal)
+})
+
+function handleKeyDown(event) {
+  if (event.key === 'Escape' && props.isOpen) {
+    emit('close')
   }
 }
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeyDown)
+  syncBodyScroll(props.isOpen)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleKeyDown)
+  syncBodyScroll(false)
+})
 </script>
 
 <style scoped>
