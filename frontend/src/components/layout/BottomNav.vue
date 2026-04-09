@@ -26,6 +26,8 @@ const route = useRoute()
 
     background: var(--white);
     border-top: 1px solid var(--border);
+    z-index: 999;
+    box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.06);
 }
 
 .bottom-nav-inner {
