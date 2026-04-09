@@ -22,7 +22,6 @@ defineEmits(['prev', 'next'])
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 12px;
 }
 
 .month-btn {
@@ -37,11 +36,20 @@ defineEmits(['prev', 'next'])
   align-items: center;
   justify-content: center;
   font-size: var(--font-size-14);
+  line-height: 1;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.month-btn:hover {
+  border-color: var(--primary);
+  background: var(--surface-highlight);
 }
 
 .month-label {
   font-size: var(--font-size-14);
   font-weight: var(--font-weight-500);
   color: var(--text);
+  min-width: 92px;
+  text-align: center;
 }
 </style>
