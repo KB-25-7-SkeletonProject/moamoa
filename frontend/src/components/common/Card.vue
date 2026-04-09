@@ -11,29 +11,30 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Card',
-  props: {
-    title: String,
-    description: String,
-    variant: {
-      type: String,
-      default: 'default',
-      validator: (value) => ['default', 'income', 'expense'].includes(value)
-    },
-    padding: {
-      type: String,
-      default: 'md',
-      validator: (value) => ['sm', 'md', 'lg'].includes(value)
-    }
+<script setup>
+import { computed, useSlots } from 'vue'
+
+defineOptions({
+  name: 'Card'
+})
+
+defineProps({
+  title: String,
+  description: String,
+  variant: {
+    type: String,
+    default: 'default',
+    validator: (value) => ['default', 'income', 'expense'].includes(value)
   },
-  computed: {
-    hasContentSlots() {
-      return Boolean(this.$slots.default);
-    }
+  padding: {
+    type: String,
+    default: 'md',
+    validator: (value) => ['sm', 'md', 'lg'].includes(value)
   }
-}
+})
+
+const slots = useSlots()
+const hasContentSlots = computed(() => Boolean(slots.default))
 </script>
 
 <style scoped>

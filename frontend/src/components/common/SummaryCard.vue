@@ -5,18 +5,19 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'SummaryCard',
-  props: {
-    label: String,
-    amount: String,
-    type: {
-      type: String,
-      validator: (value) => !value || ['income', 'expense', 'balance'].includes(value)
-    }
+<script setup>
+defineOptions({
+  name: 'SummaryCard'
+})
+
+defineProps({
+  label: String,
+  amount: String,
+  type: {
+    type: String,
+    validator: (value) => !value || ['income', 'expense', 'balance'].includes(value)
   }
-}
+})
 </script>
 
 <style scoped>
