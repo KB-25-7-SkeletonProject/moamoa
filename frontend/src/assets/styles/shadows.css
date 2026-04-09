@@ -1,0 +1,6 @@
+:root {
+    --shadow-strong: 0 1px 3px rgba(0, 0, 0, 0.16);
+    --shadow-knob: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --shadow-card-sm: 0 1px 4px rgba(15, 23, 42, 0.06);
+    --shadow-card-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
