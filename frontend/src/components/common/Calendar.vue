@@ -49,56 +49,54 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Calendar',
-  emits: ['prev', 'next', 'dayClick'],
-  props: {
-    year: {
-      type: Number,
-      required: true
-    },
-    month: {
-      type: Number,
-      required: true
-    },
-    days: {
-      type: Array,
-      required: true
-    },
-    firstDow: Number,
-    today: Number
-  },
-  computed: {
-    resolvedFirstDow() {
-      if (typeof this.firstDow === 'number') {
-        return this.firstDow;
-      }
-      return new Date(this.year, this.month - 1, 1).getDay();
-    },
-    daysInMonth() {
-      return new Date(this.year, this.month, 0).getDate();
-    },
-    normalizedDays() {
-      const byDate = new Map(
-        this.days.map((day) => [day.date, day])
-      );
+<script setup>
+import { computed } from 'vue'
 
-      return Array.from({ length: this.daysInMonth }, (_, index) => {
-        const date = index + 1;
-        return {
-          date,
-          ...(byDate.get(date) || {})
-        };
-      });
-    }
+defineOptions({
+  name: 'Calendar'
+})
+
+defineEmits(['prev', 'next', 'dayClick'])
+
+const props = defineProps({
+  year: {
+    type: Number,
+    required: true
   },
-  data() {
-    return {
-      dayNames: ['일', '월', '화', '수', '목', '금', '토']
-    }
+  month: {
+    type: Number,
+    required: true
+  },
+  days: {
+    type: Array,
+    required: true
+  },
+  firstDow: Number,
+  today: Number
+})
+
+const dayNames = ['일', '월', '화', '수', '목', '금', '토']
+
+const resolvedFirstDow = computed(() => {
+  if (typeof props.firstDow === 'number') {
+    return props.firstDow
   }
-}
+  return new Date(props.year, props.month - 1, 1).getDay()
+})
+
+const daysInMonth = computed(() => new Date(props.year, props.month, 0).getDate())
+
+const normalizedDays = computed(() => {
+  const byDate = new Map(props.days.map((day) => [day.date, day]))
+
+  return Array.from({ length: daysInMonth.value }, (_, index) => {
+    const date = index + 1
+    return {
+      date,
+      ...(byDate.get(date) || {})
+    }
+  })
+})
 </script>
 
 <style scoped>
