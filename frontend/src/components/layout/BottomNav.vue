@@ -1,0 +1,52 @@
+<template>
+    <nav class="bottom-nav">
+        <div class="bottom-nav-inner">
+            <BottomNavItem icon="🏠" label="홈"/>
+            <BottomNavItem icon="📊" label="통계"/>
+            <BottomNavItem icon="➕" label="기록 추가"/>
+            <BottomNavItem icon="📋" label="내역"/>
+            <BottomNavItem icon="⚙️" label="설정"/>
+        </div>
+    </nav>
+</template>
+
+<script setup>
+import { useRoute } from 'vue-router'
+import BottomNavItem from './BottomNavItem.vue'
+
+const route = useRoute()
+</script>
+
+<style scoped>
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    background: var(--white);
+    border-top: 1px solid var(--border);
+}
+
+.bottom-nav-inner {
+    width: min(100%, 1280px);
+    height: 60px;
+    margin: 0 auto;
+    padding: 0 8px;
+
+    display: flex;
+    align-items: center;
+}
+
+@media (min-width: 768px) {
+    .bottom-nav-inner {
+        padding: 0 24px;
+    }
+}
+
+@media (min-width: 1280px) {
+    .bottom-nav-inner {
+        padding: 0 40px;
+    }
+}
+</style>
