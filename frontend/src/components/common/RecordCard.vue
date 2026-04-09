@@ -4,8 +4,8 @@
       <span class="recordEmoji">{{ resolvedIcon }}</span>
     </div>
     <div class="recordInfo">
-      <span class="recordTitle">{{ resolvedTitle }}</span>
-      <span v-if="metaText" class="recordMeta">{{ metaText }}</span>
+      <span class="recordTitle">{{ displayTitle }}</span>
+      <span v-if="displayCategory" class="recordMeta">{{ displayCategory }}</span>
     </div>
     <div class="recordAmountWrap">
       <span :class="['recordAmount', type]">{{ amount }}</span>
@@ -59,11 +59,11 @@ const props = defineProps({
 })
 
 const recordIconStyle = computed(() => ({
-  background: props.iconBg || 'var(--surface-muted)'
+  background: 'var(--surface-muted)'
 }))
 
-const resolvedTitle = computed(() => props.title || props.category)
-const metaText = computed(() => [props.memo, props.createdAt].filter(Boolean).join(' · '))
+const displayTitle = computed(() => props.title || props.memo || props.category)
+const displayCategory = computed(() => [props.category, props.createdAt].filter(Boolean).join(' · '))
 const resolvedIcon = computed(() => props.icon || CATEGORY_ICON_MAP[props.category] || '📦')
 </script>
 
@@ -79,8 +79,8 @@ const resolvedIcon = computed(() => props.icon || CATEGORY_ICON_MAP[props.catego
 }
 
 .recordIcon {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
@@ -92,7 +92,6 @@ const resolvedIcon = computed(() => props.icon || CATEGORY_ICON_MAP[props.catego
   font-size: var(--font-size-18);
   line-height: 1;
   text-align: center;
-  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
 }
 
 .recordInfo {
@@ -110,7 +109,7 @@ const resolvedIcon = computed(() => props.icon || CATEGORY_ICON_MAP[props.catego
 }
 
 .recordMeta {
-  font-size: var(--font-size-13);
+  font-size: var(--font-size-12);
   color: var(--text-muted);
 }
 

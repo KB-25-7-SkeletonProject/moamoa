@@ -9,6 +9,9 @@ import CategoryChip from './CategoryChip.vue'
 import CategoryItem from './CategoryItem.vue'
 import Modal from './Modal.vue'
 import Calendar from './Calendar.vue'
+import Chip from './Chip.vue'
+import Divider from './Divider.vue'
+import Select from './Select.vue'
 
 export {
   AdBanner,
@@ -17,9 +20,12 @@ export {
   Card,
   CategoryChip,
   CategoryItem,
+  Chip,
+  Divider,
   Input,
   Modal,
   RecordCard,
+  Select,
   SummaryCard,
   Toggle
 }

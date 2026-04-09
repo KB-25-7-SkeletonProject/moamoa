@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    :class="['item', selected ? 'itemSelected' : '']"
+    :class="['item', selected ? 'itemSelected' : '', borderless ? 'borderless' : '']"
     @click="handleClick"
     :aria-pressed="selected"
   >
@@ -26,6 +26,7 @@ const props = defineProps({
   },
   icon: String,
   selected: Boolean,
+  borderless: Boolean,
   onClick: Function
 })
 
@@ -39,19 +40,24 @@ function handleClick(event) {
 
 <style scoped>
 .item {
-  display: flex;
+  display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 8px;
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: var(--font-size-14);
+  font-size: var(--font-size-12);
   color: var(--text);
   cursor: pointer;
-  width: 100%;
-  text-align: left;
+  width: 76px;
+  min-width: 76px;
+  min-height: 76px;
+  text-align: center;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  font-family: var(--font-family);
 }
 
 .item:hover {
@@ -64,9 +70,19 @@ function handleClick(event) {
   border-color: var(--primary);
 }
 
+.item.borderless {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.item.borderless:hover {
+  border-color: transparent;
+  box-shadow: none;
+}
+
 .itemIconWrap {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: var(--radius-sm);
   background: var(--surface-muted);
   display: inline-flex;
@@ -87,6 +103,7 @@ function handleClick(event) {
 }
 
 .itemLabel {
-  flex: 1;
+  line-height: 1.2;
+  word-break: keep-all;
 }
 </style>

@@ -28,6 +28,7 @@ defineProps({
   border-radius: var(--radius-md);
   background: var(--white);
   color: var(--text);
+  font-family: var(--font-family);
   outline: none;
   cursor: pointer;
   width: 100%;

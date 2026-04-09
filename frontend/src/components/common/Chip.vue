@@ -21,6 +21,7 @@ defineProps({
   display: inline-block;
   background: var(--white);
   color: var(--text);
+  font-family: var(--font-family);
   cursor: pointer;
   transition: 0.2s;
   padding: 6px 12px;
