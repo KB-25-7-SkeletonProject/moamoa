@@ -1,7 +1,7 @@
 <template>
     <nav class="bottom-nav">
         <div class="bottom-nav-inner">
-            <BottomNavItem icon="🏠" label="홈" path="/" :active="route.path === '/'"/>
+            <BottomNavItem icon="🏠" label="홈" path="/home" :active="route.path === '/home'"/>
             <BottomNavItem icon="📊" label="통계" path="/statistics" :active="route.path === '/statistics'"/>
             <BottomNavItem icon="➕" label="기록 추가" path="/record" :active="route.path === '/record'"/>
             <BottomNavItem icon="📋" label="내역" path="/transaction" :active="route.path === '/transaction'"/>
