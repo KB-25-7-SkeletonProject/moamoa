@@ -1,46 +1,46 @@
 <template>
-  <div class="divider">
-
-    <!-- 왼쪽 선 -->
+  <div :class="['divider', hasText && 'dividerWithText']">
     <div class="line"></div>
-
-    <!-- 텍스트 있을 때만 -->
-    <span v-if="$slots.default" class="text">
+    <span v-if="hasText" class="text">
       <slot />
     </span>
-
-    <!-- 오른쪽 선 -->
-    <div class="line"></div>
-
+    <div v-if="hasText" class="line"></div>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { computed, useSlots } from 'vue'
+
+const slots = useSlots()
+const hasText = computed(() => Boolean(slots.default))
+</script>
 
 <style scoped>
 .divider {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 12px 0;
+  width: 100%;
+  margin: 0;
 }
 
-/* 선 */
 .line {
-  flex: 1;
+  width: 100%;
   height: 1px;
   background: var(--border);
 }
 
-/* 텍스트 */
+.dividerWithText {
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.dividerWithText .line {
+  flex: 1;
+}
+
 .text {
   font-size: var(--font-size-12);
   color: var(--text-secondary);
   white-space: nowrap;
-}
-
-/* 텍스트 없을 때 */
-.divider:not(:has(.text)) .line:last-child {
-  display: none;
 }
 </style>

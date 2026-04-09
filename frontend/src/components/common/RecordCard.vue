@@ -1,7 +1,12 @@
 <template>
   <div class="record">
-    <div class="recordIcon" :style="recordIconStyle">
-      <span class="recordEmoji">{{ resolvedIcon }}</span>
+    <div class="recordIcon">
+      <CategoryIcon
+        v-if="categoryId"
+        :category-id="categoryId"
+        :alt="category || '카테고리 아이콘'"
+      />
+      <span v-else class="recordEmoji">{{ resolvedIcon }}</span>
     </div>
     <div class="recordInfo">
       <span class="recordTitle">{{ displayTitle }}</span>
@@ -19,6 +24,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import CategoryIcon from '@/components/common/CategoryIcon.vue'
 
 const CATEGORY_ICON_MAP = {
   급여: '💰',
@@ -35,14 +41,15 @@ const CATEGORY_ICON_MAP = {
   의료: '💊',
   교육: '📚',
   여가: '🎬',
-  주거: '🏠'
+  주거: '🏠',
 }
 
 defineOptions({
-  name: 'RecordCard'
+  name: 'RecordCard',
 })
 
 const props = defineProps({
+  categoryId: String,
   iconBg: String,
   icon: String,
   title: String,
@@ -53,17 +60,15 @@ const props = defineProps({
   balance: String,
   type: {
     type: String,
-    validator: (value) => !value || ['income', 'expense'].includes(value)
+    validator: (value) => !value || ['income', 'expense'].includes(value),
   },
-  onEdit: Function
+  onEdit: Function,
 })
 
-const recordIconStyle = computed(() => ({
-  background: 'var(--surface-muted)'
-}))
-
 const displayTitle = computed(() => props.title || props.memo || props.category)
-const displayCategory = computed(() => [props.category, props.createdAt].filter(Boolean).join(' · '))
+const displayCategory = computed(() =>
+  [props.category, props.createdAt].filter(Boolean).join(' · '),
+)
 const resolvedIcon = computed(() => props.icon || CATEGORY_ICON_MAP[props.category] || '📦')
 </script>
 
@@ -81,7 +86,6 @@ const resolvedIcon = computed(() => props.icon || CATEGORY_ICON_MAP[props.catego
 .recordIcon {
   width: 44px;
   height: 44px;
-  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,9 +93,14 @@ const resolvedIcon = computed(() => props.icon || CATEGORY_ICON_MAP[props.catego
 }
 
 .recordEmoji {
-  font-size: var(--font-size-18);
+  font-size: 28px;
   line-height: 1;
   text-align: center;
+}
+
+.recordIcon :deep(.icon) {
+  width: 100%;
+  height: 100%;
 }
 
 .recordInfo {

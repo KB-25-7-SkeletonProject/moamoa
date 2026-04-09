@@ -10,6 +10,7 @@ import CategoryItem from './CategoryItem.vue'
 import Modal from './Modal.vue'
 import Calendar from './Calendar.vue'
 import Chip from './Chip.vue'
+import CategoryIcon from './CategoryIcon.vue'
 import Divider from './Divider.vue'
 import Select from './Select.vue'
 
@@ -19,6 +20,7 @@ export {
   Calendar,
   Card,
   CategoryChip,
+  CategoryIcon,
   CategoryItem,
   Chip,
   Divider,
