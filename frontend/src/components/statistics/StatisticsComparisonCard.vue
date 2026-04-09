@@ -6,8 +6,9 @@
       <div class="comp-values">
         <span class="comp-val prev">{{ item.previous }}</span>
         <span class="comp-arrow">→</span>
-        <span class="comp-val" :class="item.state">
-          {{ item.current }} {{ item.changeLabel }}
+        <span class="comp-current-group" :class="item.state">
+          <span class="comp-val current">{{ item.current }}</span>
+          <span v-if="item.changeLabel" class="comp-val change">{{ item.changeLabel }}</span>
         </span>
       </div>
     </div>
@@ -42,9 +43,10 @@ defineProps({
 }
 
 .comparison-row {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(64px, auto) max-content;
   align-items: center;
+  gap: 10px;
   padding: 10px 0;
   border-bottom: 1px solid var(--bg);
 }
@@ -56,12 +58,14 @@ defineProps({
 .comp-label {
   font-size: var(--font-size-13);
   color: var(--text-muted);
+  min-width: 0;
 }
 
 .comp-values {
-  display: flex;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: minmax(88px, max-content) 16px max-content;
   align-items: center;
+  gap: 8px;
 }
 
 .comp-val {
@@ -70,28 +74,70 @@ defineProps({
   color: var(--text);
 }
 
-.comp-val.prev {
-  color: var(--text-subtle);
+.comp-current-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
 }
 
-.comp-val.better {
+.comp-current-group .comp-val {
+  white-space: nowrap;
+}
+
+.comp-current-group.better .comp-val {
   color: var(--income);
 }
 
-.comp-val.worse {
+.comp-current-group.worse .comp-val {
   color: var(--expense);
 }
 
-.comp-val.same {
+.comp-current-group.same .comp-val {
   color: var(--text);
+}
+
+.comp-val.current {
+  font-weight: var(--font-weight-700);
+}
+
+.comp-val.change {
+  text-align: left;
+}
+
+.comp-val.prev {
+  color: var(--text-subtle);
+  text-align: left;
 }
 
 .comp-arrow {
   font-size: var(--font-size-12);
   color: var(--border-muted);
+  text-align: center;
+}
+
+@media (max-width: 420px) {
+  .comparison-row {
+    grid-template-columns: minmax(56px, auto) minmax(0, 1fr);
+    align-items: flex-start;
+  }
+
+  .comp-values {
+    grid-template-columns: minmax(72px, auto) 16px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 1279px) {
+  .comparison-row {
+    align-items: flex-start;
+  }
 }
 
 @media (min-width: 768px) {
+  .comp-values {
+    grid-template-columns: minmax(104px, max-content) 18px max-content;
+  }
+
   .comp-label,
   .comp-val {
     font-size: var(--font-size-14);
@@ -99,6 +145,14 @@ defineProps({
 }
 
 @media (min-width: 1280px) {
+  .comparison-row {
+    grid-template-columns: minmax(72px, auto) max-content;
+  }
+
+  .comp-values {
+    grid-template-columns: minmax(112px, max-content) 20px max-content;
+  }
+
   .section-title {
     font-size: var(--font-size-16);
   }
