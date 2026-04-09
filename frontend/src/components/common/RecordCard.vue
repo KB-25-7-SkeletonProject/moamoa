@@ -17,7 +17,9 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue'
+
 const CATEGORY_ICON_MAP = {
   급여: '💰',
   용돈: '🧧',
@@ -36,41 +38,33 @@ const CATEGORY_ICON_MAP = {
   주거: '🏠'
 }
 
-export default {
-  name: 'RecordCard',
-  props: {
-    iconBg: String,
-    icon: String,
-    title: String,
-    category: String,
-    memo: String,
-    createdAt: String,
-    amount: String,
-    balance: String,
-    type: {
-      type: String,
-      validator: (value) => !value || ['income', 'expense'].includes(value)
-    },
-    onEdit: Function
+defineOptions({
+  name: 'RecordCard'
+})
+
+const props = defineProps({
+  iconBg: String,
+  icon: String,
+  title: String,
+  category: String,
+  memo: String,
+  createdAt: String,
+  amount: String,
+  balance: String,
+  type: {
+    type: String,
+    validator: (value) => !value || ['income', 'expense'].includes(value)
   },
-  computed: {
-    recordIconStyle() {
-      return {
-        background: this.iconBg || 'var(--surface-muted)'
-      };
-    },
-    resolvedTitle() {
-      return this.title || this.category;
-    },
-    metaText() {
-      return [this.memo, this.createdAt].filter(Boolean).join(' · ');
-    },
-    resolvedIcon() {
-      if (this.icon) return this.icon;
-      return CATEGORY_ICON_MAP[this.category] || '📦';
-    }
-  }
-}
+  onEdit: Function
+})
+
+const recordIconStyle = computed(() => ({
+  background: props.iconBg || 'var(--surface-muted)'
+}))
+
+const resolvedTitle = computed(() => props.title || props.category)
+const metaText = computed(() => [props.memo, props.createdAt].filter(Boolean).join(' · '))
+const resolvedIcon = computed(() => props.icon || CATEGORY_ICON_MAP[props.category] || '📦')
 </script>
 
 <style scoped>
