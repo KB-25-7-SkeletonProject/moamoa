@@ -1,16 +1,18 @@
 <template>
   <Card class="stats-card">
-    <h2 class="section-title">월별 지출 추이</h2>
-    <div
-      v-for="item in items"
-      :key="item.label"
-      class="bar-row"
-    >
-      <span class="bar-label" :class="{ active: item.active }">{{ item.label }}</span>
-      <div class="bar-track">
-        <div class="bar-fill" :style="{ width: `${item.width}%`, background: item.color }" />
+    <h2 class="section-title">{{ title }}</h2>
+    <div class="bar-list">
+      <div
+        v-for="item in items"
+        :key="item.label"
+        class="bar-row"
+      >
+        <span class="bar-label" :class="{ active: item.active }">{{ item.label }}</span>
+        <div class="bar-track">
+          <div class="bar-fill" :style="{ width: `${item.width}%`, background: item.color }" />
+        </div>
+        <span class="bar-amount" :class="{ active: item.active }">{{ item.amount }}</span>
       </div>
-      <span class="bar-amount" :class="{ active: item.active }">{{ item.amount }}</span>
     </div>
   </Card>
 </template>
@@ -19,6 +21,10 @@
 import Card from '@/components/common/Card.vue'
 
 defineProps({
+  title: {
+    type: String,
+    default: '월별 추이',
+  },
   items: {
     type: Array,
     default: () => [],
@@ -29,6 +35,8 @@ defineProps({
 <style scoped>
 .stats-card {
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .section-title {
@@ -36,6 +44,14 @@ defineProps({
   font-size: var(--font-size-15);
   font-weight: var(--font-weight-700);
   color: var(--text);
+}
+
+.bar-list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 180px;
 }
 
 .bar-row {
@@ -72,6 +88,7 @@ defineProps({
 .bar-fill {
   height: 100%;
   border-radius: 9px;
+  min-width: 8px;
 }
 
 .bar-amount {
@@ -89,6 +106,10 @@ defineProps({
 }
 
 @media (min-width: 768px) {
+  .bar-list {
+    min-height: 220px;
+  }
+
   .bar-label {
     width: 44px;
     font-size: var(--font-size-12);
