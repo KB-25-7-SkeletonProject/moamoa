@@ -8,40 +8,40 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'AdBanner',
-  emits: ['click'],
-  props: {
-    title: {
-      type: String,
-      default: '광고 영역'
-    },
-    subtitle: {
-      type: String,
-      default: '추천 혜택과 이벤트를 확인해보세요'
-    },
-    icon: {
-      type: String,
-      default: ''
-    },
-    onClick: Function
+<script setup>
+import { computed, useAttrs } from 'vue'
+
+defineOptions({
+  name: 'AdBanner'
+})
+
+const emit = defineEmits(['click'])
+
+const props = defineProps({
+  title: {
+    type: String,
+    default: '광고 영역'
   },
-  computed: {
-    resolvedIcon() {
-      return this.icon || '›';
-    },
-    clickable() {
-      return Boolean(this.onClick || this.$attrs?.onClick);
-    }
+  subtitle: {
+    type: String,
+    default: '추천 혜택과 이벤트를 확인해보세요'
   },
-  methods: {
-    handleClick(event) {
-      this.$emit('click', event);
-      if (this.onClick) {
-        this.onClick(event);
-      }
-    }
+  icon: {
+    type: String,
+    default: ''
+  },
+  onClick: Function
+})
+
+const attrs = useAttrs()
+
+const resolvedIcon = computed(() => props.icon || '›')
+const clickable = computed(() => Boolean(props.onClick || attrs?.onClick))
+
+function handleClick(event) {
+  emit('click', event)
+  if (props.onClick) {
+    props.onClick(event)
   }
 }
 </script>
