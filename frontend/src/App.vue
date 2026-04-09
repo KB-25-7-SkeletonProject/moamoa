@@ -1,7 +1,7 @@
 <template>
-  <Home />
+  <LoginPage />
 </template>
 
 <script setup>
-import Home from '@/pages/Home.vue'
+import LoginPage from './pages/LoginPage.vue'
 </script>
