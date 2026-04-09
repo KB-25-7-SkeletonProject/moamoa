@@ -7,17 +7,17 @@
 
     <div class="stats-grid">
       <StatisticsPieCard
-        :title="pieTitle"
+        :title="section.titles.pie"
         :center-label="section.summaryLabel"
         :total-amount="section.pie.totalAmount"
         :items="section.pie.items"
       />
       <StatisticsBarCard
-        :title="`${sectionName} 월별 추이`"
+        :title="section.titles.bar"
         :items="section.bars"
       />
       <StatisticsComparisonCard
-        :title="`${sectionName} 전월 비교`"
+        :title="section.titles.comparison"
         :items="section.comparison"
       />
     </div>
@@ -25,7 +25,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import StatisticsBarCard from '@/components/statistics/StatisticsBarCard.vue'
 import StatisticsComparisonCard from '@/components/statistics/StatisticsComparisonCard.vue'
 import StatisticsPieCard from '@/components/statistics/StatisticsPieCard.vue'
@@ -36,9 +35,6 @@ const props = defineProps({
     required: true,
   },
 })
-
-const sectionName = computed(() => props.section.heading.replace(' 통계', ''))
-const pieTitle = computed(() => `이달의 ${sectionName.value} 카테고리 비율`)
 </script>
 
 <style scoped>
