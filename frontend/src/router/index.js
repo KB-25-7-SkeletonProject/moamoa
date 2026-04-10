@@ -6,6 +6,7 @@ import Statistics from '@/pages/Statistics.vue'
 import RecordPage from '@/pages/RecordPage.vue'
 import SettingsPage from '@/pages/SettingsPage.vue'
 import TransactionPage from '@/pages/TransactionPage.vue'
+import AddPage from '@/pages/AddPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,9 +40,9 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/record',
-      name: 'record',
-      component: RecordPage,
+      path: '/entry',
+      name: 'entry',
+      component: AddPage,
       meta: { requiresAuth: true },
     },
     {
