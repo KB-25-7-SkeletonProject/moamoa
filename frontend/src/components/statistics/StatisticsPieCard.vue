@@ -13,6 +13,16 @@
           stroke-width="16"
           stroke-linecap="butt"
         />
+        <circle
+          v-for="segment in fullCircleSegments"
+          :key="`${segment.label}-full`"
+          cx="50"
+          cy="50"
+          r="35"
+          fill="none"
+          :stroke="segment.color"
+          stroke-width="16"
+        />
         <text x="50" y="47" text-anchor="middle" class="amount">{{ totalAmount }}</text>
         <text x="50" y="60" text-anchor="middle" class="caption">{{ centerLabel }}</text>
       </svg>
@@ -78,19 +88,30 @@ function createArcPath(startAngle, endAngle) {
 const segments = computed(() => {
   let startAngle = 0
 
-  return props.items.map((item) => {
-    const angle = (item.percent / 100) * 360
-    const endAngle = startAngle + angle
-    const segment = {
+  return props.items
+    .filter((item) => item.percent > 0 && item.percent < 100)
+    .map((item) => {
+      const angle = (item.percent / 100) * 360
+      const endAngle = startAngle + angle
+      const segment = {
+        label: item.label,
+        color: item.color,
+        path: createArcPath(startAngle, endAngle),
+      }
+
+      startAngle = endAngle
+      return segment
+    })
+})
+
+const fullCircleSegments = computed(() =>
+  props.items
+    .filter((item) => item.percent >= 100)
+    .map((item) => ({
       label: item.label,
       color: item.color,
-      path: createArcPath(startAngle, endAngle),
-    }
-
-    startAngle = endAngle
-    return segment
-  }).filter((segment, index) => props.items[index]?.percent > 0)
-})
+    })),
+)
 </script>
 
 <style scoped>
