@@ -358,6 +358,10 @@ function formatRecordAmount(record) {
   gap: 12px;
 }
 
+.income {
+  color: var(--income);
+}
+
 .expense {
   color: var(--expense);
 }

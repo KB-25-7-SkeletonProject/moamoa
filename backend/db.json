@@ -168,6 +168,17 @@
       "date": "2026-04-10",
       "createdAt": "2026-04-10T13:40:38",
       "updatedAt": "2026-04-10T13:40:38"
+    },
+    {
+      "id": "r1775796432980",
+      "userId": "u001",
+      "type": "income",
+      "amount": 500,
+      "categoryId": "c107",
+      "memo": "KB포인트 들어왔다!!",
+      "date": "2026-04-10",
+      "createdAt": "2026-04-10T13:47:12",
+      "updatedAt": "2026-04-10T13:47:12"
     }
   ],
   "categories": [
