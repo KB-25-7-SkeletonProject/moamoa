@@ -52,7 +52,11 @@ export function getMonthlyCategoryTotals(records, baseDate = new Date()) {
 
   records.forEach((record) => {
     const recordDate = new Date(record.date)
-    const amount = Number(record.amount || 0)
+    const rawAmount =
+      typeof record.amountValue === 'number' && Number.isFinite(record.amountValue)
+        ? record.amountValue
+        : record.amount
+    const amount = Number(rawAmount || 0)
 
     if (
       record.type === 'expense' &&

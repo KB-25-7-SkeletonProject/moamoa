@@ -38,6 +38,29 @@
         </article>
       </section>
 
+      <DashboardSection title="이번 달 요약">
+        <div v-if="hasMonthlyRecords" class="monthly-pie-grid">
+          <StatisticsPieCard
+            title="지출"
+            center-label="총지출"
+            :total-amount="monthlyExpensePie.totalAmount"
+            :items="monthlyExpensePie.items"
+            :show-total-amount="false"
+          />
+          <StatisticsPieCard
+            title="수입"
+            center-label="총수입"
+            :total-amount="monthlyIncomePie.totalAmount"
+            :items="monthlyIncomePie.items"
+            :show-total-amount="false"
+          />
+        </div>
+        <div v-else class="card recent-card">
+          <p class="empty-copy">이번 달 기록이 없어요!</p>
+        </div>
+        <RouterLink class="stats-link" to="/statistics">자세히 보기</RouterLink>
+      </DashboardSection>
+
       <DashboardSection title="오늘의 기록">
         <div class="card recent-card">
           <div v-if="todayRecords.length" class="record-list">
@@ -52,7 +75,7 @@
               :type="record.type"
             />
           </div>
-          <p v-else class="empty-copy">아직 오늘의 기록이 없어요.</p>
+          <p v-else class="empty-copy">아직 기록이 없어요!</p>
         </div>
       </DashboardSection>
 
@@ -118,7 +141,7 @@
             :type="record.type"
           />
         </div>
-        <p v-else class="empty-copy">이 날짜에는 수입/지출 기록이 없습니다.</p>
+        <p v-else class="empty-copy">이 날짜의 수입/지출 기록이 없습니다.</p>
       </section>
     </Modal>
   </LayoutWrapper>
@@ -126,14 +149,18 @@
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { RouterLink } from 'vue-router'
 
 import Calendar from '@/components/common/Calendar.vue'
 import Modal from '@/components/common/Modal.vue'
 import RecordCard from '@/components/common/RecordCard.vue'
 import DashboardSection from '@/components/dashboard/DashboardSection.vue'
 import LayoutWrapper from '@/components/layout/LayoutWrapper.vue'
+import StatisticsPieCard from '@/components/statistics/StatisticsPieCard.vue'
 import { ALL_CATEGORIES } from '@/constants/category'
+import { STATISTICS_PIE_COLOR_MAP } from '@/constants/statistics'
 import { readRecords } from '@/services/finance'
+import { formatCurrency, getMonthlyCategoryTotals } from '@/utils/financeFormatters'
 import { formatExactCurrency } from '@/utils/transaction'
 
 const AD_ROTATION_MS = 5000
@@ -175,7 +202,9 @@ const categoryNameById = ALL_CATEGORIES.reduce((acc, item) => {
   return acc
 }, {})
 
-const dashboardTitle = computed(() => (user?.name ? `${user.name}님의 MoaMoa 홈` : 'MoaMoa 홈'))
+const dashboardTitle = computed(() =>
+  user?.name ? `${user.name}님의 용돈기입장 MoaMoa` : '용돈기입장 MoaMoa'
+)
 
 const checkedDateSet = computed(() => new Set(checkedDates.value))
 
@@ -187,16 +216,32 @@ const todayDateKey = computed(() =>
   )
 )
 
+const recordsByDate = computed(() => {
+  const map = new Map()
+
+  records.value.forEach((record) => {
+    const key = record.date
+    if (!key) {
+      return
+    }
+
+    if (!map.has(key)) {
+      map.set(key, [])
+    }
+    map.get(key).push(record)
+  })
+
+  return map
+})
+
 const todayRecords = computed(() =>
-  records.value
-    .filter((record) => record.date === todayDateKey.value)
-    .map((record) => ({
-      ...record,
-      title: record.memo || categoryNameById[record.categoryId] || '기타',
-      category: categoryNameById[record.categoryId] || '기타',
-      time: formatTime(record.createdAt),
-      amount: formatRecordAmount(record),
-    }))
+  (recordsByDate.value.get(todayDateKey.value) || []).map((record) => ({
+    ...record,
+    title: record.memo || categoryNameById[record.categoryId] || '기타',
+    category: categoryNameById[record.categoryId] || '기타',
+    time: formatTime(record.createdAt),
+    amount: formatRecordAmount(record),
+  }))
 )
 
 const availableAds = computed(() =>
@@ -211,24 +256,6 @@ const activeAd = computed(() => {
   return availableAds.value[currentAdIndex.value % availableAds.value.length]
 })
 
-const recordsByDate = computed(() => {
-  const map = new Map()
-
-  records.value.forEach((record) => {
-    if (!record.date) {
-      return
-    }
-
-    if (!map.has(record.date)) {
-      map.set(record.date, [])
-    }
-
-    map.get(record.date).push(record)
-  })
-
-  return map
-})
-
 const calendarDays = computed(() => {
   const totalDays = new Date(displayYear.value, displayMonth.value, 0).getDate()
 
@@ -241,12 +268,7 @@ const calendarDays = computed(() => {
     return {
       date,
       checked: checkedDateSet.value.has(key),
-      mark:
-        dayMarks.length === 1
-          ? dayMarks[0]
-          : dayMarks.includes('expense')
-            ? 'expense'
-            : dayMarks[0],
+      marks: dayMarks,
     }
   })
 })
@@ -284,6 +306,38 @@ const streakCount = computed(() => {
 
   return streak
 })
+
+const monthlyExpensePie = computed(() => {
+  const totals = getMonthlyCategoryTotals(records.value, currentDate.value)
+  const totalAmount = totals.reduce((sum, item) => sum + item.amount, 0)
+
+  return {
+    totalAmount: formatCompactAmount(totalAmount),
+    items: totals.map((item) => ({
+      label: categoryNameById[item.categoryId] || '기타',
+      percent: totalAmount ? Math.round((item.amount / totalAmount) * 100) : 0,
+      color: STATISTICS_PIE_COLOR_MAP.expense[item.categoryId] || 'var(--stats-expense-other)',
+    })),
+  }
+})
+
+const monthlyIncomePie = computed(() => {
+  const totals = getMonthlyCategoryTotalsByType(records.value, currentDate.value, 'income')
+  const totalAmount = totals.reduce((sum, item) => sum + item.amount, 0)
+
+  return {
+    totalAmount: formatCompactAmount(totalAmount),
+    items: totals.map((item) => ({
+      label: categoryNameById[item.categoryId] || '기타',
+      percent: totalAmount ? Math.round((item.amount / totalAmount) * 100) : 0,
+      color: STATISTICS_PIE_COLOR_MAP.income[item.categoryId] || 'var(--stats-income-other)',
+    })),
+  }
+})
+
+const hasMonthlyRecords = computed(
+  () => monthlyExpensePie.value.items.length > 0 || monthlyIncomePie.value.items.length > 0
+)
 
 const selectedDateRecords = computed(() => recordsByDate.value.get(selectedDateKey.value) || [])
 
@@ -383,7 +437,7 @@ async function fetchRecords() {
   try {
     records.value = await readRecords({ userId: user.id })
   } catch (error) {
-    console.error('home records fetch error', error)
+    console.error('홈 기록을 불러오지 못했습니다.', error)
     records.value = []
   }
 }
@@ -437,15 +491,53 @@ function formatDateLabel(key) {
 }
 
 function formatTime(value) {
-  if (!value) {
-    return '00:00'
-  }
-
+  if (!value) return '00:00'
   return String(value).slice(11, 16) || '00:00'
 }
 
 function formatRecordAmount(record) {
   return formatExactCurrency(record.amount, record.type === 'income')
+}
+
+function formatCompactAmount(value) {
+  const amount = Number(value || 0)
+
+  if (amount >= 10000) {
+    const compact = Math.round(amount / 1000) / 10
+    return `${compact % 1 === 0 ? compact.toFixed(0) : compact.toFixed(1)}만`
+  }
+
+  return formatCurrency(amount)
+}
+
+function getMonthlyCategoryTotalsByType(sourceRecords, baseDate, type) {
+  const month = baseDate.getMonth()
+  const year = baseDate.getFullYear()
+  const totals = {}
+
+  sourceRecords.forEach((record) => {
+    const recordDate = new Date(record.date)
+    const rawAmount =
+      typeof record.amountValue === 'number' && Number.isFinite(record.amountValue)
+        ? record.amountValue
+        : record.amount
+    const amount = Number(rawAmount || 0)
+
+    if (
+      record.type === type &&
+      Number.isFinite(amount) &&
+      !Number.isNaN(recordDate.getTime()) &&
+      recordDate.getMonth() === month &&
+      recordDate.getFullYear() === year
+    ) {
+      const categoryId = record.categoryId || record.category
+      totals[categoryId] = (totals[categoryId] || 0) + amount
+    }
+  })
+
+  return Object.entries(totals)
+    .sort((a, b) => b[1] - a[1])
+    .map(([categoryId, amount]) => ({ categoryId, amount }))
 }
 </script>
 
@@ -465,15 +557,46 @@ function formatRecordAmount(record) {
 .record-list {
   display: grid;
   gap: 12px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 4px 4px 4px 0;
+}
+
+.record-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.record-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-full);
+}
+
+.record-list::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .empty-copy {
   margin: 0;
-  padding: 28px 0;
   font-size: var(--font-size-15);
   font-weight: var(--font-weight-700);
   color: var(--text-muted);
   text-align: center;
+  padding: 28px 0;
+}
+
+.monthly-pie-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.stats-link {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: var(--font-size-13);
+  font-weight: var(--font-weight-500);
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .ad-card {
@@ -600,6 +723,12 @@ function formatRecordAmount(record) {
   font-weight: var(--font-weight-700);
 }
 
+.day-records-sub {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-13);
+}
+
 .day-records-list {
   display: grid;
   gap: 10px;
@@ -622,6 +751,10 @@ function formatRecordAmount(record) {
 @media (min-width: 768px) {
   .dashboard-page {
     padding: 20px 32px;
+  }
+
+  .monthly-pie-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .day-records-modal {
