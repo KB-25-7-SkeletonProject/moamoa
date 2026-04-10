@@ -29,8 +29,8 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/transaction',
-      name: 'transaction',
+      path: '/transactions',
+      name: 'transactions',
       component: TransactionPage,
       meta: { requiresAuth: true },
     },

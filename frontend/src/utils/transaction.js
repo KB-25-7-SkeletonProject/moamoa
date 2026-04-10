@@ -17,10 +17,10 @@ export function buildMonthOptions(records) {
   return [...new Set(records.map((record) => record.monthKey))]
     .sort((a, b) => b.localeCompare(a))
     .map((value) => {
-      const [, month] = value.split('-')
+      const [year, month] = value.split('-')
       return {
         value,
-        label: `${Number(month)}월`,
+        label: `${year}년 ${Number(month)}월`,
       }
     })
 }
@@ -94,11 +94,11 @@ export function filterTransactionGroups(groups, filters) {
         const matchesMonth = filters.selectedMonth ? monthKey === filters.selectedMonth : true
         const matchesCategory =
           filters.selectedCategoryIds.length === 0 ||
-          filters.selectedCategoryIds.includes(record.categoryId)
+          filters.selectedCategoryIds.includes(String(record.categoryId))
         const matchesDate = resolveDateMatch(dateKey, filters.dateFilter)
         const matchesQuery =
           !query ||
-          [record.title, record.category, record.meta, record.time]
+          [record.title, record.category, record.memo, record.time]
             .filter(Boolean)
             .some((value) => value.toLowerCase().includes(query))
 

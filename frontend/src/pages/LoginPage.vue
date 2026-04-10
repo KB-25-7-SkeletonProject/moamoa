@@ -64,7 +64,7 @@ import { useAuthStore } from '@/stores/authStore'
 
 import Modal from '@/components/common/Modal.vue'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002'
+const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'http://localhost:3000'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -87,7 +87,7 @@ async function submit() {
     isSubmitting.value = true
     errorMessage.value = ''
 
-    const response = await fetch(`${API_BASE_URL}/api/login`, {
+    const response = await fetch(`${AUTH_API_BASE_URL}/api/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -109,8 +109,8 @@ async function submit() {
     const todayAttendance = formatToday()
     const nextAttendances = Array.from(new Set([...savedAttendances, todayAttendance])).sort()
 
-    window.sessionStorage.setItem('moamoa-user', JSON.stringify(data.user))
-    authStore.user = data.user
+    authStore.login(data.user)
+    window.localStorage.setItem('token', data.user.id)
     window.localStorage.setItem(attendanceKey, JSON.stringify(nextAttendances))
 
     isSuccessModalOpen.value = true
@@ -147,7 +147,7 @@ function openSignupNotice() {
 }
 
 .signup-button {
-  background: #f3f5f9;
+  background: #F3F5F9;
   box-shadow: none;
   color: var(--muted);
 }
@@ -170,7 +170,7 @@ function openSignupNotice() {
   border-radius: 18px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #ffe168 0%, #ffcc00 100%);
+  background: linear-gradient(135deg, #FFE168 0%, #FFCC00 100%);
   color: #453500;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -184,14 +184,14 @@ function openSignupNotice() {
 }
 
 .success-eyebrow {
-  color: #bf8d00;
+  color: #BF8D00;
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.14em;
 }
 
 .success-title {
-  color: #18233a;
+  color: #18233A;
   font-size: 1.35rem;
   font-weight: 800;
 }
