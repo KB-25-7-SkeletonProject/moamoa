@@ -63,7 +63,7 @@ import { useRouter } from 'vue-router'
 
 import Modal from '@/components/common/Modal.vue'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
 
 const router = useRouter()
 const email = ref('')
@@ -108,6 +108,7 @@ async function submit() {
     const nextAttendances = Array.from(new Set([...savedAttendances, todayAttendance])).sort()
 
     window.sessionStorage.setItem('moamoa-user', JSON.stringify(data.user))
+    window.localStorage.setItem('token', data.user.id)
     window.localStorage.setItem(attendanceKey, JSON.stringify(nextAttendances))
 
     isSuccessModalOpen.value = true
