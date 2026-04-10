@@ -23,15 +23,22 @@
           :stroke="segment.color"
           stroke-width="16"
         />
-        <text x="50" y="47" text-anchor="middle" class="amount">{{ totalAmount }}</text>
-        <text x="50" y="60" text-anchor="middle" class="caption">{{ centerLabel }}</text>
+        <text v-if="showTotalAmount" x="50" y="47" text-anchor="middle" class="amount">{{ totalAmount }}</text>
+        <text
+          :x="50"
+          :y="showTotalAmount ? 60 : 52"
+          text-anchor="middle"
+          :class="showTotalAmount ? 'caption' : 'amount center-only'"
+        >
+          {{ centerLabel }}
+        </text>
       </svg>
 
-      <div class="pie-legend">
+      <div v-if="showLegend" class="pie-legend">
         <div v-for="item in items" :key="item.label" class="legend-item">
           <span class="legend-dot" :style="{ background: item.color }" />
           <span class="legend-label">{{ item.label }}</span>
-          <span class="legend-pct">{{ item.percent }}%</span>
+          <span v-if="showPercent" class="legend-pct">{{ item.percent }}%</span>
         </div>
       </div>
     </div>
@@ -58,6 +65,18 @@ const props = defineProps({
   items: {
     type: Array,
     default: () => [],
+  },
+  showLegend: {
+    type: Boolean,
+    default: true,
+  },
+  showPercent: {
+    type: Boolean,
+    default: true,
+  },
+  showTotalAmount: {
+    type: Boolean,
+    default: true,
   },
 })
 
@@ -135,10 +154,16 @@ const fullCircleSegments = computed(() =>
   gap: 16px;
   flex: 1;
   min-height: 180px;
+  padding-left: 20px;
 }
 
 .chart {
   flex-shrink: 0;
+  margin: 0 auto;
+}
+
+.stats-card:has(.chart):not(:has(.pie-legend)) .pie-inner {
+  min-height: 140px;
 }
 
 .pie-legend {
@@ -186,9 +211,14 @@ const fullCircleSegments = computed(() =>
   fill: var(--text-muted);
 }
 
+.center-only {
+  font-size: 10px;
+}
+
 @media (min-width: 768px) {
   .pie-inner {
     min-height: 220px;
+    padding-left: 16px;
   }
 
   .legend-item {
