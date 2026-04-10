@@ -6,7 +6,7 @@
         v-model="localQuery"
         class-name="search-field"
         input-class="search-input"
-        placeholder="거래처, 메모 검색..."
+        placeholder="메모, 카테고리, 시각 검색..."
       />
       <button
         v-if="localQuery"

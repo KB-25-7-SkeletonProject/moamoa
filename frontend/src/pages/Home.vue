@@ -14,6 +14,17 @@
         </div>
       </section>
 
+      <section class="attendance-summary">
+        <article class="attendance-count-box card">
+          <span class="summary-label">이번 달 출석</span>
+          <strong>{{ checkedCount }}일</strong>
+        </article>
+        <article class="attendance-count-box card">
+          <span class="summary-label">출석률</span>
+          <strong class="income">{{ attendanceRate }}%</strong>
+        </article>
+      </section>
+
       <DashboardSection title="캘린더">
         <Calendar
           :year="displayYear"
@@ -27,16 +38,29 @@
         />
       </DashboardSection>
 
-      <section class="attendance-summary">
-        <article class="attendance-count-box card">
-          <span class="summary-label">이번 달 출석</span>
-          <strong>{{ checkedCount }}일</strong>
-        </article>
-        <article class="attendance-count-box card">
-          <span class="summary-label">출석률</span>
-          <strong class="income">{{ attendanceRate }}%</strong>
-        </article>
-      </section>
+      <DashboardSection title="오늘의 기록">
+        <div class="card recent-card">
+          <div v-if="todayRecords.length" class="record-list">
+            <button
+              v-for="record in todayRecords"
+              :key="record.id"
+              type="button"
+              class="day-record-item-button"
+              @click="openRecordDetail(record.id)"
+            >
+              <RecordCard
+                :category-id="record.categoryId"
+                :title="record.title"
+                :category="record.category"
+                :created-at="record.time"
+                :amount="record.amount"
+                :type="record.type"
+              />
+            </button>
+          </div>
+          <p v-else class="empty-copy">아직 기록이 없어요!</p>
+        </div>
+      </DashboardSection>
 
       <DashboardSection title="이번 달 요약">
         <div v-if="hasMonthlyRecords" class="monthly-pie-grid">
@@ -59,24 +83,6 @@
           <p class="empty-copy">이번 달 기록이 없어요!</p>
         </div>
         <RouterLink class="stats-link" to="/statistics">자세히 보기</RouterLink>
-      </DashboardSection>
-
-      <DashboardSection title="오늘의 기록">
-        <div class="card recent-card">
-          <div v-if="todayRecords.length" class="record-list">
-            <RecordCard
-              v-for="record in todayRecords"
-              :key="record.id"
-              :category-id="record.categoryId"
-              :title="record.title"
-              :category="record.category"
-              :created-at="record.time"
-              :amount="record.amount"
-              :type="record.type"
-            />
-          </div>
-          <p v-else class="empty-copy">아직 기록이 없어요!</p>
-        </div>
       </DashboardSection>
 
       <DashboardSection title="추천 광고">
@@ -130,16 +136,22 @@
         <h3 class="day-records-title">{{ selectedDateLabel }}</h3>
 
         <div v-if="selectedDateRecords.length" class="day-records-list">
-          <RecordCard
+          <button
             v-for="record in selectedDateRecords"
             :key="record.id"
-            :category-id="record.categoryId"
-            :title="record.memo || categoryNameById[record.categoryId] || '기타'"
-            :category="categoryNameById[record.categoryId] || '기타'"
-            :created-at="formatTime(record.createdAt)"
-            :amount="formatRecordAmount(record)"
-            :type="record.type"
-          />
+            type="button"
+            class="day-record-item-button"
+            @click="openRecordDetail(record.id)"
+          >
+            <RecordCard
+              :category-id="record.categoryId"
+              :title="record.memo || categoryNameById[record.categoryId] || '기타'"
+              :category="categoryNameById[record.categoryId] || '기타'"
+              :created-at="formatTime(record.createdAt)"
+              :amount="formatRecordAmount(record)"
+              :type="record.type"
+            />
+          </button>
         </div>
         <p v-else class="empty-copy">이 날짜의 수입/지출 기록이 없습니다.</p>
       </section>
@@ -149,7 +161,7 @@
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { RouterLink } from 'vue-router'
+import { useRouter, RouterLink } from 'vue-router'
 
 import Calendar from '@/components/common/Calendar.vue'
 import Modal from '@/components/common/Modal.vue'
@@ -183,6 +195,7 @@ const AD_BANNERS = [
 ]
 
 const user = loadUser()
+const router = useRouter()
 const initialNow = new Date()
 const currentDate = ref(new Date())
 const displayYear = ref(initialNow.getFullYear())
@@ -426,6 +439,12 @@ function openDayRecordsModal(day) {
 
 function closeDayRecordsModal() {
   isDayRecordsModalOpen.value = false
+}
+
+function openRecordDetail(recordId) {
+  if (!recordId) return
+  isDayRecordsModalOpen.value = false
+  router.push(`/records/${recordId}`)
 }
 
 async function fetchRecords() {
@@ -728,6 +747,15 @@ function getMonthlyCategoryTotalsByType(sourceRecords, baseDate, type) {
 .day-records-list {
   display: grid;
   gap: 10px;
+}
+
+.day-record-item-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
 }
 
 .day-records-list :deep(.record) {
