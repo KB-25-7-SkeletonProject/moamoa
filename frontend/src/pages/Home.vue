@@ -20,9 +20,10 @@
           :month="displayMonth"
           :days="calendarDays"
           :today="todayInView"
-          :interactive="false"
+          :interactive="true"
           @prev="moveMonth(-1)"
           @next="moveMonth(1)"
+          @day-click="openDayRecordsModal"
         />
       </DashboardSection>
 
@@ -87,13 +88,39 @@
           <div v-else class="ad-empty">
             <p class="ad-empty-title">광고 이미지를 준비해주세요</p>
             <p class="ad-empty-copy">
-              `frontend/public/ads` 폴더에 `banner-01.png`, `banner-02.png`, `banner-03.png` 파일을
-              넣으면 5초 간격으로 자동 재생됩니다.
+              `frontend/public/ads` 폴더에 `banner-01.png`, `banner-02.png`, `banner-03.png`
+              파일을 넣으면 5초 간격으로 자동 재생됩니다.
             </p>
           </div>
         </div>
       </DashboardSection>
     </div>
+
+    <Modal
+      :is-open="isDayRecordsModalOpen"
+      size="lg"
+      :max-width="980"
+      show-close
+      @close="closeDayRecordsModal"
+    >
+      <section class="day-records-modal">
+        <h3 class="day-records-title">{{ selectedDateLabel }}</h3>
+
+        <div v-if="selectedDateRecords.length" class="day-records-list">
+          <RecordCard
+            v-for="record in selectedDateRecords"
+            :key="record.id"
+            :category-id="record.categoryId"
+            :title="record.memo || categoryNameById[record.categoryId] || '기타'"
+            :category="categoryNameById[record.categoryId] || '기타'"
+            :created-at="formatTime(record.createdAt)"
+            :amount="formatRecordAmount(record)"
+            :type="record.type"
+          />
+        </div>
+        <p v-else class="empty-copy">이 날짜에는 수입/지출 기록이 없습니다.</p>
+      </section>
+    </Modal>
   </LayoutWrapper>
 </template>
 
@@ -101,49 +128,79 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import Calendar from '@/components/common/Calendar.vue'
+import Modal from '@/components/common/Modal.vue'
 import RecordCard from '@/components/common/RecordCard.vue'
 import DashboardSection from '@/components/dashboard/DashboardSection.vue'
 import LayoutWrapper from '@/components/layout/LayoutWrapper.vue'
-import { fetchTransactionGroups } from '@/services/transactions'
-import { flattenTransactionGroups } from '@/utils/transaction'
+import { ALL_CATEGORIES } from '@/constants/category'
+import { readRecords } from '@/services/finance'
+import { formatExactCurrency } from '@/utils/transaction'
 
 const AD_ROTATION_MS = 5000
 const AD_BANNERS = [
   {
     src: '/ads/banner-01.png',
-    title: 'KB국민은행 MoaMoa 출시',
-    copy: 'MoaMoa는 KB국민은행과 함께합니다.',
+    title: 'KB 국민카드 x MoaMoa',
+    copy: '첫 번째 광고 이미지를 이 영역에서 노출합니다.',
   },
   {
     src: '/ads/banner-02.png',
-    title: 'KB Its your life',
-    copy: '지금 바로 도전하세요',
+    title: 'Its your life',
+    copy: '5초마다 다음 광고 이미지로 자동 전환됩니다.',
   },
   {
     src: '/ads/banner-03.png',
-    title: 'KB Its your life 선발과정 선공개',
-    copy: '자세한 내용은 배너를 클릭해주세요',
+    title: '지금 확인해보세요',
+    copy: '준비한 세 번째 배너도 같은 위치에서 반복 노출됩니다.',
   },
 ]
 
 const user = loadUser()
-const now = new Date()
-const todayDateKey = buildDateKey(now.getFullYear(), now.getMonth() + 1, now.getDate())
-const displayYear = ref(now.getFullYear())
-const displayMonth = ref(now.getMonth() + 1)
+const initialNow = new Date()
+const currentDate = ref(new Date())
+const displayYear = ref(initialNow.getFullYear())
+const displayMonth = ref(initialNow.getMonth() + 1)
 const checkedDates = ref(loadCheckedDates(user?.id))
-const todayRecords = ref([])
+const records = ref([])
+const isDayRecordsModalOpen = ref(false)
+const selectedDateKey = ref('')
 const failedAdSources = ref([])
 const currentAdIndex = ref(0)
 
+let clockTimer = null
 let adRotationTimer = null
+
+const categoryNameById = ALL_CATEGORIES.reduce((acc, item) => {
+  acc[item.id] = item.name
+  return acc
+}, {})
 
 const dashboardTitle = computed(() => (user?.name ? `${user.name}님의 MoaMoa 홈` : 'MoaMoa 홈'))
 
 const checkedDateSet = computed(() => new Set(checkedDates.value))
 
+const todayDateKey = computed(() =>
+  buildDateKey(
+    currentDate.value.getFullYear(),
+    currentDate.value.getMonth() + 1,
+    currentDate.value.getDate()
+  )
+)
+
+const todayRecords = computed(() =>
+  records.value
+    .filter((record) => record.date === todayDateKey.value)
+    .map((record) => ({
+      ...record,
+      title: record.memo || categoryNameById[record.categoryId] || '기타',
+      category: categoryNameById[record.categoryId] || '기타',
+      time: formatTime(record.createdAt),
+      amount: formatRecordAmount(record),
+    }))
+)
+
 const availableAds = computed(() =>
-  AD_BANNERS.filter((banner) => !failedAdSources.value.includes(banner.src)),
+  AD_BANNERS.filter((banner) => !failedAdSources.value.includes(banner.src))
 )
 
 const activeAd = computed(() => {
@@ -151,8 +208,25 @@ const activeAd = computed(() => {
     return null
   }
 
-  const safeIndex = currentAdIndex.value % availableAds.value.length
-  return availableAds.value[safeIndex]
+  return availableAds.value[currentAdIndex.value % availableAds.value.length]
+})
+
+const recordsByDate = computed(() => {
+  const map = new Map()
+
+  records.value.forEach((record) => {
+    if (!record.date) {
+      return
+    }
+
+    if (!map.has(record.date)) {
+      map.set(record.date, [])
+    }
+
+    map.get(record.date).push(record)
+  })
+
+  return map
 })
 
 const calendarDays = computed(() => {
@@ -161,19 +235,28 @@ const calendarDays = computed(() => {
   return Array.from({ length: totalDays }, (_, index) => {
     const date = index + 1
     const key = buildDateKey(displayYear.value, displayMonth.value, date)
+    const dayRecords = recordsByDate.value.get(key) || []
+    const dayMarks = [...new Set(dayRecords.map((record) => record.type))]
 
     return {
       date,
       checked: checkedDateSet.value.has(key),
+      mark:
+        dayMarks.length === 1
+          ? dayMarks[0]
+          : dayMarks.includes('expense')
+            ? 'expense'
+            : dayMarks[0],
     }
   })
 })
 
 const todayInView = computed(() => {
   const isCurrentMonth =
-    displayYear.value === now.getFullYear() && displayMonth.value === now.getMonth() + 1
+    displayYear.value === currentDate.value.getFullYear() &&
+    displayMonth.value === currentDate.value.getMonth() + 1
 
-  return isCurrentMonth ? now.getDate() : undefined
+  return isCurrentMonth ? currentDate.value.getDate() : undefined
 })
 
 const checkedCount = computed(() => calendarDays.value.filter((day) => day.checked).length)
@@ -183,14 +266,11 @@ const attendanceRate = computed(() => {
   return Math.round((checkedCount.value / totalDays) * 100)
 })
 
-const todayChecked = computed(() => {
-  const todayKey = buildDateKey(now.getFullYear(), now.getMonth() + 1, now.getDate())
-  return checkedDateSet.value.has(todayKey)
-})
+const todayChecked = computed(() => checkedDateSet.value.has(todayDateKey.value))
 
 const streakCount = computed(() => {
   let streak = 0
-  const cursor = new Date(now)
+  const cursor = new Date(currentDate.value)
 
   while (true) {
     const key = buildDateKey(cursor.getFullYear(), cursor.getMonth() + 1, cursor.getDate())
@@ -205,6 +285,12 @@ const streakCount = computed(() => {
   return streak
 })
 
+const selectedDateRecords = computed(() => recordsByDate.value.get(selectedDateKey.value) || [])
+
+const selectedDateLabel = computed(() =>
+  selectedDateKey.value ? formatDateLabel(selectedDateKey.value) : '날짜'
+)
+
 watch(
   checkedDates,
   (value) => {
@@ -212,7 +298,7 @@ watch(
       window.localStorage.setItem(`moamoa-attendance-days:${user.id}`, JSON.stringify(value))
     }
   },
-  { deep: true },
+  { deep: true }
 )
 
 watch(availableAds, (value) => {
@@ -230,25 +316,19 @@ watch(availableAds, (value) => {
 })
 
 onMounted(async () => {
+  await fetchRecords()
   startAdRotation()
 
-  if (!user?.id) {
-    todayRecords.value = []
-    return
-  }
-
-  try {
-    const groups = await fetchTransactionGroups({ userId: user.id })
-    todayRecords.value = flattenTransactionGroups(groups).filter(
-      (record) => record.dateKey === todayDateKey,
-    )
-  } catch (error) {
-    todayRecords.value = []
-    console.error('오늘의 기록을 불러오지 못했습니다.', error)
-  }
+  clockTimer = window.setInterval(() => {
+    currentDate.value = new Date()
+  }, 60 * 1000)
 })
 
 onBeforeUnmount(() => {
+  if (clockTimer) {
+    window.clearInterval(clockTimer)
+  }
+
   stopAdRotation()
 })
 
@@ -283,6 +363,29 @@ function moveMonth(step) {
   const next = new Date(displayYear.value, displayMonth.value - 1 + step, 1)
   displayYear.value = next.getFullYear()
   displayMonth.value = next.getMonth() + 1
+}
+
+function openDayRecordsModal(day) {
+  selectedDateKey.value = buildDateKey(displayYear.value, displayMonth.value, day.date)
+  isDayRecordsModalOpen.value = true
+}
+
+function closeDayRecordsModal() {
+  isDayRecordsModalOpen.value = false
+}
+
+async function fetchRecords() {
+  if (!user?.id) {
+    records.value = []
+    return
+  }
+
+  try {
+    records.value = await readRecords({ userId: user.id })
+  } catch (error) {
+    console.error('home records fetch error', error)
+    records.value = []
+  }
 }
 
 function loadUser() {
@@ -327,6 +430,23 @@ function buildDateKey(year, month, date) {
 function pad(value) {
   return String(value).padStart(2, '0')
 }
+
+function formatDateLabel(key) {
+  const [year, month, date] = key.split('-')
+  return `${year}년 ${Number(month)}월 ${Number(date)}일`
+}
+
+function formatTime(value) {
+  if (!value) {
+    return '00:00'
+  }
+
+  return String(value).slice(11, 16) || '00:00'
+}
+
+function formatRecordAmount(record) {
+  return formatExactCurrency(record.amount, record.type === 'income')
+}
 </script>
 
 <style scoped>
@@ -366,7 +486,9 @@ function pad(value) {
   min-height: 88px;
   border-radius: 18px;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(255, 225, 104, 0.18), rgba(24, 35, 58, 0.32)), #eef2f7;
+  background:
+    linear-gradient(135deg, rgba(255, 225, 104, 0.18), rgba(24, 35, 58, 0.32)),
+    #eef2f7;
 }
 
 .ad-image {
@@ -441,7 +563,9 @@ function pad(value) {
   place-items: center;
   text-align: center;
   padding: 24px;
-  background: linear-gradient(135deg, rgba(255, 225, 104, 0.2), rgba(49, 71, 112, 0.12)), #f7f9fc;
+  background:
+    linear-gradient(135deg, rgba(255, 225, 104, 0.2), rgba(49, 71, 112, 0.12)),
+    #f7f9fc;
 }
 
 .ad-empty-title {
@@ -454,5 +578,87 @@ function pad(value) {
   margin-top: 8px;
   color: var(--text-muted);
   line-height: 1.6;
+}
+
+.income {
+  color: var(--income);
+}
+
+.expense {
+  color: var(--expense);
+}
+
+.day-records-modal {
+  display: grid;
+  gap: 10px;
+  width: min(84vw, 920px);
+}
+
+.day-records-title {
+  margin: 0;
+  font-size: var(--font-size-18);
+  font-weight: var(--font-weight-700);
+}
+
+.day-records-list {
+  display: grid;
+  gap: 10px;
+}
+
+.day-records-list :deep(.record) {
+  width: 100%;
+  min-height: 72px;
+  padding: 14px 16px;
+}
+
+.day-records-list :deep(.recordTitle) {
+  font-size: var(--font-size-16);
+}
+
+.day-records-list :deep(.recordAmount) {
+  font-size: var(--font-size-16);
+}
+
+@media (min-width: 768px) {
+  .dashboard-page {
+    padding: 20px 32px;
+  }
+
+  .day-records-modal {
+    width: min(82vw, 920px);
+  }
+
+  .day-records-list {
+    gap: 14px;
+  }
+
+  .day-records-list :deep(.record) {
+    min-height: 84px;
+    padding: 16px 22px;
+  }
+
+  .day-records-list :deep(.recordTitle) {
+    font-size: var(--font-size-18);
+  }
+
+  .day-records-list :deep(.recordMeta) {
+    font-size: var(--font-size-13);
+  }
+
+  .day-records-list :deep(.recordAmount) {
+    font-size: var(--font-size-18);
+  }
+}
+
+@media (max-width: 480px) {
+  .day-records-modal {
+    width: calc(100vw - 56px);
+  }
+}
+
+@media (min-width: 1280px) {
+  .dashboard-page {
+    padding: 24px 48px;
+  }
 }
 </style>
