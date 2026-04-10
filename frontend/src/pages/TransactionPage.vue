@@ -161,7 +161,6 @@ const categoryFilterLabel = computed(() =>
 
 const dateFilterLabel = computed(() => getDateFilterLabel(dateFilter.value))
 
-// 데이터 fetch
 const fetchData = async () => {
   try {
     errorMessage.value = ''
@@ -175,12 +174,11 @@ const fetchData = async () => {
     transactionGroups.value = await fetchTransactionGroups({ userId: currentUserId })
   } catch (error) {
     transactionGroups.value = []
-    errorMessage.value = '거래 내역을 불러오지 못했습니다. json-server 실행 상태를 확인해주세요.'
-    console.error('❌ transaction fetch error', error)
+    errorMessage.value = '거래 내역을 불러오지 못했습니다. 백엔드 서버 상태를 확인해주세요.'
+    console.error('transaction fetch error', error)
   }
 }
 
-// computed
 const allRecords = computed(() => flattenTransactionGroups(transactionGroups.value))
 const monthOptions = computed(() => [
   { value: '', label: '월 선택' },

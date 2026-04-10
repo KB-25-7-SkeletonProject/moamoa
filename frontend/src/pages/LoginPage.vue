@@ -60,8 +60,7 @@ import { useAuthStore } from '@/stores/authStore'
 
 import Modal from '@/components/common/Modal.vue'
 import logoImage from '@/assets/images/logo/Logo_brown-no-bg-tight-bottom.png'
-
-const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'http://localhost:3000'
+import api from '@/services/api'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -84,22 +83,10 @@ async function submit() {
     isSubmitting.value = true
     errorMessage.value = ''
 
-    const response = await fetch(`${AUTH_API_BASE_URL}/api/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: trimmedEmail,
-        password: trimmedPassword,
-      }),
+    const { data } = await api.post('/api/login', {
+      email: trimmedEmail,
+      password: trimmedPassword,
     })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.message || '로그인 중 오류가 발생했습니다.')
-    }
 
     const attendanceKey = `moamoa-attendance-days:${data.user.id}`
     const savedAttendances = Array.isArray(data.attendances) ? data.attendances : []
@@ -107,7 +94,6 @@ async function submit() {
     const nextAttendances = Array.from(new Set([...savedAttendances, todayAttendance])).sort()
 
     authStore.login(data.user)
-    window.localStorage.setItem('token', data.user.id)
     window.localStorage.setItem(attendanceKey, JSON.stringify(nextAttendances))
 
     isSuccessModalOpen.value = true

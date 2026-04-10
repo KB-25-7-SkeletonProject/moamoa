@@ -2,9 +2,10 @@ import axios from 'axios'
 import api from '@/services/api'
 
 const RECORDS_ENDPOINT = '/records'
-const DEFAULT_USER_ID = 'u001'
 const REQUEST_FAILED_MESSAGE =
   '\uC694\uCCAD \uCC98\uB9AC\uC5D0 \uC2E4\uD328\uD588\uC2B5\uB2C8\uB2E4.'
+const AUTH_REQUIRED_MESSAGE =
+  '\uB85C\uADF8\uC778 \uD6C4 \uC774\uC6A9\uD574 \uC8FC\uC138\uC694.'
 const LEGACY_CATEGORY_ID_MAP = {
   c009: 'c101',
   c010: 'c102',
@@ -21,8 +22,32 @@ function getKSTDateTimeString(date = new Date()) {
   return new Date(date.getTime() + KST_OFFSET_MS).toISOString().slice(0, 19)
 }
 
-function getDefaultUserId() {
-  return localStorage.getItem('token') || DEFAULT_USER_ID
+function getCurrentUserId() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const rawUser = window.sessionStorage.getItem('moamoa-user')
+  if (!rawUser) {
+    return null
+  }
+
+  try {
+    const user = JSON.parse(rawUser)
+    return typeof user?.id === 'string' && user.id ? user.id : null
+  } catch {
+    return null
+  }
+}
+
+function requireCurrentUserId() {
+  const userId = getCurrentUserId()
+
+  if (!userId) {
+    throw new Error(AUTH_REQUIRED_MESSAGE)
+  }
+
+  return userId
 }
 
 function getRequestErrorMessage(error) {
@@ -92,7 +117,7 @@ function buildRecordPayload(payload, currentRecord = {}, timestamp = getKSTDateT
   const categoryId = normalizeCategoryId(
     payload.categoryId ?? payload.category ?? currentRecord.categoryId,
   )
-  const userId = payload.userId ?? currentRecord.userId ?? getDefaultUserId()
+  const userId = payload.userId ?? currentRecord.userId ?? requireCurrentUserId()
 
   if (!isValidRecordType(type)) {
     throw new Error(
@@ -126,7 +151,7 @@ function sortRecordsByRecent(records) {
   })
 }
 
-export async function readRecords({ userId = getDefaultUserId() } = {}) {
+export async function readRecords({ userId = requireCurrentUserId() } = {}) {
   try {
     const { data } = await api.get(RECORDS_ENDPOINT, {
       params: userId ? { userId } : undefined,
