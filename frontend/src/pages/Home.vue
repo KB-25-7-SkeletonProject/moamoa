@@ -111,8 +111,8 @@
           <div v-else class="ad-empty">
             <p class="ad-empty-title">광고 이미지를 준비해주세요</p>
             <p class="ad-empty-copy">
-              `frontend/public/ads` 폴더에 `banner-01.png`, `banner-02.png`, `banner-03.png`
-              파일을 넣으면 5초 간격으로 자동 재생됩니다.
+              `frontend/public/ads` 폴더에 `banner-01.png`, `banner-02.png`, `banner-03.png` 파일을
+              넣으면 5초 간격으로 자동 재생됩니다.
             </p>
           </div>
         </div>
@@ -168,17 +168,17 @@ const AD_BANNERS = [
   {
     src: '/ads/banner-01.png',
     title: 'KB 국민카드 x MoaMoa',
-    copy: '첫 번째 광고 이미지를 이 영역에서 노출합니다.',
+    copy: 'KB 국민카드로 용돈을 관리하면, 더 쉽고 편리하게 가계부를 작성할 수 있어요!',
   },
   {
     src: '/ads/banner-02.png',
-    title: 'Its your life',
-    copy: '5초마다 다음 광고 이미지로 자동 전환됩니다.',
+    title: 'KB Its your life',
+    copy: 'KB는 당신의 개발자의 꿈을 응원합니다!',
   },
   {
     src: '/ads/banner-03.png',
-    title: '지금 확인해보세요',
-    copy: '준비한 세 번째 배너도 같은 위치에서 반복 노출됩니다.',
+    title: 'KB ITS your life',
+    copy: '자세한 일정은 배너를 클릭하여 확인해보세요!',
   },
 ]
 
@@ -203,7 +203,7 @@ const categoryNameById = ALL_CATEGORIES.reduce((acc, item) => {
 }, {})
 
 const dashboardTitle = computed(() =>
-  user?.name ? `${user.name}님의 용돈기입장 MoaMoa` : '용돈기입장 MoaMoa'
+  user?.name ? `${user.name}님의 용돈기입장 MoaMoa` : '용돈기입장 MoaMoa',
 )
 
 const checkedDateSet = computed(() => new Set(checkedDates.value))
@@ -212,8 +212,8 @@ const todayDateKey = computed(() =>
   buildDateKey(
     currentDate.value.getFullYear(),
     currentDate.value.getMonth() + 1,
-    currentDate.value.getDate()
-  )
+    currentDate.value.getDate(),
+  ),
 )
 
 const recordsByDate = computed(() => {
@@ -241,11 +241,11 @@ const todayRecords = computed(() =>
     category: categoryNameById[record.categoryId] || '기타',
     time: formatTime(record.createdAt),
     amount: formatRecordAmount(record),
-  }))
+  })),
 )
 
 const availableAds = computed(() =>
-  AD_BANNERS.filter((banner) => !failedAdSources.value.includes(banner.src))
+  AD_BANNERS.filter((banner) => !failedAdSources.value.includes(banner.src)),
 )
 
 const activeAd = computed(() => {
@@ -336,13 +336,13 @@ const monthlyIncomePie = computed(() => {
 })
 
 const hasMonthlyRecords = computed(
-  () => monthlyExpensePie.value.items.length > 0 || monthlyIncomePie.value.items.length > 0
+  () => monthlyExpensePie.value.items.length > 0 || monthlyIncomePie.value.items.length > 0,
 )
 
 const selectedDateRecords = computed(() => recordsByDate.value.get(selectedDateKey.value) || [])
 
 const selectedDateLabel = computed(() =>
-  selectedDateKey.value ? formatDateLabel(selectedDateKey.value) : '날짜'
+  selectedDateKey.value ? formatDateLabel(selectedDateKey.value) : '날짜',
 )
 
 watch(
@@ -352,7 +352,7 @@ watch(
       window.localStorage.setItem(`moamoa-attendance-days:${user.id}`, JSON.stringify(value))
     }
   },
-  { deep: true }
+  { deep: true },
 )
 
 watch(availableAds, (value) => {
@@ -609,9 +609,7 @@ function getMonthlyCategoryTotalsByType(sourceRecords, baseDate, type) {
   min-height: 88px;
   border-radius: 18px;
   overflow: hidden;
-  background:
-    linear-gradient(135deg, rgba(255, 225, 104, 0.18), rgba(24, 35, 58, 0.32)),
-    #eef2f7;
+  background: linear-gradient(135deg, rgba(255, 225, 104, 0.18), rgba(24, 35, 58, 0.32)), #eef2f7;
 }
 
 .ad-image {
@@ -686,9 +684,7 @@ function getMonthlyCategoryTotalsByType(sourceRecords, baseDate, type) {
   place-items: center;
   text-align: center;
   padding: 24px;
-  background:
-    linear-gradient(135deg, rgba(255, 225, 104, 0.2), rgba(49, 71, 112, 0.12)),
-    #f7f9fc;
+  background: linear-gradient(135deg, rgba(255, 225, 104, 0.2), rgba(49, 71, 112, 0.12)), #f7f9fc;
 }
 
 .ad-empty-title {
