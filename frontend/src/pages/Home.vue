@@ -1,7 +1,7 @@
 <template>
   <LayoutWrapper
     :title="dashboardTitle"
-    desc="오늘의 출석 현황과 기록을 한눈에 확인해보세요"
+    desc="오늘의 출석 현황과 기록, 광고 배너를 한눈에 확인해보세요"
   >
     <div class="dashboard-page">
       <section class="hero-card card">
@@ -78,6 +78,45 @@
           <p v-else class="empty-copy">아직 기록이 없어요!</p>
         </div>
       </DashboardSection>
+
+      <DashboardSection title="추천 광고">
+        <div class="ad-card card">
+          <template v-if="activeAd">
+            <div class="ad-frame">
+              <img
+                :src="activeAd.src"
+                :alt="activeAd.title"
+                class="ad-image"
+                @error="handleAdError(activeAd.src)"
+              />
+              <div class="ad-overlay">
+                <p class="ad-label">SPONSORED</p>
+                <strong class="ad-title">{{ activeAd.title }}</strong>
+                <p class="ad-copy">{{ activeAd.copy }}</p>
+              </div>
+            </div>
+
+            <div v-if="availableAds.length > 1" class="ad-dots">
+              <button
+                v-for="(banner, index) in availableAds"
+                :key="banner.src"
+                type="button"
+                :class="['ad-dot', index === currentAdIndex ? 'active' : '']"
+                :aria-label="`${banner.title} 보기`"
+                @click="currentAdIndex = index"
+              />
+            </div>
+          </template>
+
+          <div v-else class="ad-empty">
+            <p class="ad-empty-title">광고 이미지를 준비해주세요</p>
+            <p class="ad-empty-copy">
+              `frontend/public/ads` 폴더에 `banner-01.png`, `banner-02.png`, `banner-03.png` 파일을
+              넣으면 5초 간격으로 자동 재생됩니다.
+            </p>
+          </div>
+        </div>
+      </DashboardSection>
     </div>
 
     <Modal
@@ -124,6 +163,25 @@ import { readRecords } from '@/services/finance'
 import { formatCurrency, getMonthlyCategoryTotals } from '@/utils/financeFormatters'
 import { formatExactCurrency } from '@/utils/transaction'
 
+const AD_ROTATION_MS = 5000
+const AD_BANNERS = [
+  {
+    src: '/ads/banner-01.png',
+    title: 'KB 국민카드 x MoaMoa',
+    copy: 'KB 국민카드로 용돈을 관리하면, 더 쉽고 편리하게 가계부를 작성할 수 있어요!',
+  },
+  {
+    src: '/ads/banner-02.png',
+    title: 'KB Its your life',
+    copy: 'KB는 당신의 개발자의 꿈을 응원합니다!',
+  },
+  {
+    src: '/ads/banner-03.png',
+    title: 'KB ITS your life',
+    copy: '자세한 일정은 배너를 클릭하여 확인해보세요!',
+  },
+]
+
 const user = loadUser()
 const initialNow = new Date()
 const currentDate = ref(new Date())
@@ -133,7 +191,11 @@ const checkedDates = ref(loadCheckedDates(user?.id))
 const records = ref([])
 const isDayRecordsModalOpen = ref(false)
 const selectedDateKey = ref('')
+const failedAdSources = ref([])
+const currentAdIndex = ref(0)
+
 let clockTimer = null
+let adRotationTimer = null
 
 const categoryNameById = ALL_CATEGORIES.reduce((acc, item) => {
   acc[item.id] = item.name
@@ -141,7 +203,7 @@ const categoryNameById = ALL_CATEGORIES.reduce((acc, item) => {
 }, {})
 
 const dashboardTitle = computed(() =>
-  user?.name ? `${user.name}님의 용돈기입장 MoaMoa` : '용돈기입장 MoaMoa'
+  user?.name ? `${user.name}님의 용돈기입장 MoaMoa` : '용돈기입장 MoaMoa',
 )
 
 const checkedDateSet = computed(() => new Set(checkedDates.value))
@@ -159,7 +221,9 @@ const recordsByDate = computed(() => {
 
   records.value.forEach((record) => {
     const key = record.date
-    if (!key) return
+    if (!key) {
+      return
+    }
 
     if (!map.has(key)) {
       map.set(key, [])
@@ -179,6 +243,18 @@ const todayRecords = computed(() =>
     amount: formatRecordAmount(record),
   })),
 )
+
+const availableAds = computed(() =>
+  AD_BANNERS.filter((banner) => !failedAdSources.value.includes(banner.src)),
+)
+
+const activeAd = computed(() => {
+  if (!availableAds.value.length) {
+    return null
+  }
+
+  return availableAds.value[currentAdIndex.value % availableAds.value.length]
+})
 
 const calendarDays = computed(() => {
   const totalDays = new Date(displayYear.value, displayMonth.value, 0).getDate()
@@ -269,19 +345,6 @@ const selectedDateLabel = computed(() =>
   selectedDateKey.value ? formatDateLabel(selectedDateKey.value) : '날짜',
 )
 
-onMounted(fetchRecords)
-onMounted(() => {
-  clockTimer = window.setInterval(() => {
-    currentDate.value = new Date()
-  }, 60 * 1000)
-})
-
-onBeforeUnmount(() => {
-  if (clockTimer) {
-    window.clearInterval(clockTimer)
-  }
-})
-
 watch(
   checkedDates,
   (value) => {
@@ -291,6 +354,64 @@ watch(
   },
   { deep: true },
 )
+
+watch(availableAds, (value) => {
+  if (!value.length) {
+    stopAdRotation()
+    currentAdIndex.value = 0
+    return
+  }
+
+  if (currentAdIndex.value >= value.length) {
+    currentAdIndex.value = 0
+  }
+
+  startAdRotation()
+})
+
+onMounted(async () => {
+  await fetchRecords()
+  startAdRotation()
+
+  clockTimer = window.setInterval(() => {
+    currentDate.value = new Date()
+  }, 60 * 1000)
+})
+
+onBeforeUnmount(() => {
+  if (clockTimer) {
+    window.clearInterval(clockTimer)
+  }
+
+  stopAdRotation()
+})
+
+function startAdRotation() {
+  stopAdRotation()
+
+  if (availableAds.value.length <= 1) {
+    return
+  }
+
+  adRotationTimer = window.setInterval(() => {
+    currentAdIndex.value = (currentAdIndex.value + 1) % availableAds.value.length
+  }, AD_ROTATION_MS)
+}
+
+function stopAdRotation() {
+  if (adRotationTimer) {
+    window.clearInterval(adRotationTimer)
+    adRotationTimer = null
+  }
+}
+
+function handleAdError(src) {
+  if (failedAdSources.value.includes(src)) {
+    return
+  }
+
+  failedAdSources.value = [...failedAdSources.value, src]
+}
 
 function moveMonth(step) {
   const next = new Date(displayYear.value, displayMonth.value - 1 + step, 1)
@@ -476,6 +597,106 @@ function getMonthlyCategoryTotalsByType(sourceRecords, baseDate, type) {
   color: var(--text-muted);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+.ad-card {
+  overflow: hidden;
+  padding: 12px;
+}
+
+.ad-frame {
+  position: relative;
+  min-height: 88px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(255, 225, 104, 0.18), rgba(24, 35, 58, 0.32)), #eef2f7;
+}
+
+.ad-image {
+  width: 100%;
+  height: 108px;
+  object-fit: contain;
+  display: block;
+}
+
+.ad-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 18px;
+  background: linear-gradient(180deg, transparent 0%, rgba(17, 25, 43, 0.82) 100%);
+  color: #fff;
+}
+
+.ad-label,
+.ad-title,
+.ad-copy,
+.ad-empty-title,
+.ad-empty-copy {
+  margin: 0;
+}
+
+.ad-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: #ffe168;
+}
+
+.ad-title {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.ad-copy {
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.5;
+}
+
+.ad-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ad-dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: #d1d7e2;
+  cursor: pointer;
+}
+
+.ad-dot.active {
+  width: 28px;
+  background: #ffcc00;
+}
+
+.ad-empty {
+  min-height: 108px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(255, 225, 104, 0.2), rgba(49, 71, 112, 0.12)), #f7f9fc;
+}
+
+.ad-empty-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #18233a;
+}
+
+.ad-empty-copy {
+  margin-top: 8px;
+  color: var(--text-muted);
+  line-height: 1.6;
 }
 
 .income {
