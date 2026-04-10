@@ -14,7 +14,7 @@
         </div>
       </section>
 
-      <DashboardSection title="출석 체크">
+      <DashboardSection title="캘린더">
         <Calendar
           :year="displayYear"
           :month="displayMonth"
