@@ -140,12 +140,12 @@
       "id": "r150",
       "userId": "u001",
       "type": "income",
-      "amount": 3000000,
+      "amount": 2000000,
       "categoryId": "c101",
       "memo": "4월 월급",
       "date": "2026-04-01",
       "createdAt": "2026-04-01T09:00:00",
-      "updatedAt": "2026-04-01T09:00:00"
+      "updatedAt": "2026-04-10T16:07:52"
     },
     {
       "id": "r151",
@@ -167,18 +167,18 @@
       "memo": "병원에 다녀왔습니다...",
       "date": "2026-04-10",
       "createdAt": "2026-04-10T13:40:38",
-      "updatedAt": "2026-04-10T13:40:38"
+      "updatedAt": "2026-04-10T15:48:40"
     },
     {
       "id": "r1775796432980",
       "userId": "u001",
       "type": "income",
-      "amount": 500,
+      "amount": 5000,
       "categoryId": "c107",
-      "memo": "KB포인트 들어왔다!!",
+      "memo": "KB포인트 들어왔엉",
       "date": "2026-04-10",
       "createdAt": "2026-04-10T13:47:12",
-      "updatedAt": "2026-04-10T13:47:12"
+      "updatedAt": "2026-04-10T15:56:29"
     }
   ],
   "categories": [

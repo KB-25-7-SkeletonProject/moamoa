@@ -6,6 +6,7 @@ import Statistics from '@/pages/Statistics.vue'
 import SettingsPage from '@/pages/SettingsPage.vue'
 import TransactionPage from '@/pages/TransactionPage.vue'
 import AddPage from '@/pages/AddPage.vue'
+import RecordDetailPage from '@/pages/RecordDetailPage.vue'
 import { useAuthStore } from '@/stores/authStore'
 
 
@@ -44,6 +45,12 @@ const router = createRouter({
       path: '/entry',
       name: 'entry',
       component: AddPage,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/records/:id',
+      name: 'record-detail',
+      component: RecordDetailPage,
       meta: { requiresAuth: true },
     },
     {

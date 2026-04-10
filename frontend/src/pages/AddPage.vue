@@ -1,10 +1,14 @@
 <!-- -->
 <template>
   <LayoutWrapper
-    :title="isEditMode ? '내역 수정' : '내역 추가'"
+    :title="isEditMode ? '기록 수정' : '기록 추가'"
     :desc="isEditMode ? '기존 수입과 지출 기록을 수정하세요' : '수입과 지출을 바로 기록하세요'"
   >
     <div class="page-shell">
+      <section v-if="isEditMode" class="page-section page-section_back">
+        <Button variant="back" aria-label="뒤로가기" @click="goToRecordDetail">←</Button>
+      </section>
+
       <section class="page-section">
         <Card padding="md">
           <div class="type-toggle">
@@ -90,17 +94,19 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { Button, Card, Input } from '@/components/common'
 import CategoryIcon from '@/components/common/CategoryIcon.vue'
 import LayoutWrapper from '@/components/layout/LayoutWrapper.vue'
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '@/constants/category'
-import { createRecord } from '@/services/finance'
+import { createRecord, getRecordById, updateRecord } from '@/services/finance'
 import { formatCurrency } from '@/utils/financeFormatters'
 
 const router = useRouter()
-const isEditMode = ref(false)
+const route = useRoute()
+const editingRecordId = computed(() => String(route.query.recordId || ''))
+const isEditMode = computed(() => !!editingRecordId.value)
 const type = ref('expense')
 const amount = ref(0)
 const amountInput = ref('')
@@ -108,6 +114,7 @@ const memo = ref('')
 const selectedCategory = ref(EXPENSE_CATEGORIES[0]?.id ?? '')
 const isSaving = ref(false)
 const errorMessage = ref('')
+const isLoading = ref(false)
 
 function getLocalDateInputValue() {
   const now = new Date()
@@ -127,6 +134,12 @@ watch(type, (nextType) => {
     selectedCategory.value = categories[0]?.id ?? ''
   }
 })
+
+onMounted(loadEditRecord)
+
+function goToRecordDetail() {
+  router.back()
+}
 
 function onAmountInput(value) {
   const digits = String(value).replace(/\D/g, '')
@@ -159,36 +172,77 @@ async function save() {
   isSaving.value = true
 
   try {
-    await createRecord({
+    const payload = {
       type: type.value,
       amount: amount.value,
       categoryId: selectedCategory.value,
       memo: memo.value,
       date: date.value,
-    })
+    }
 
-    router.push('/home')
+    if (isEditMode.value) {
+      await updateRecord(editingRecordId.value, payload)
+      router.push(`/records/${editingRecordId.value}`)
+    } else {
+      const created = await createRecord(payload)
+      router.push(`/records/${created.id}`)
+    }
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '저장 중 문제가 발생했습니다.'
   } finally {
     isSaving.value = false
   }
 }
+
+async function loadEditRecord() {
+  if (!isEditMode.value) {
+    return
+  }
+
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    const record = await getRecordById(editingRecordId.value)
+
+    if (!record) {
+      errorMessage.value = '수정할 기록을 찾을 수 없습니다.'
+      return
+    }
+
+    type.value = record.type || 'expense'
+    amount.value = Number(record.amount || 0)
+    amountInput.value = String(record.amount || '')
+    memo.value = record.memo || ''
+    date.value = record.date || getLocalDateInputValue()
+    selectedCategory.value = record.categoryId || selectedCategory.value
+  } catch (error) {
+    errorMessage.value = error instanceof Error ? error.message : '기록 정보를 불러오지 못했습니다.'
+  } finally {
+    isLoading.value = false
+  }
+}
 </script>
 
 <style scoped>
 .page-shell {
-  width: 100%;
-  max-width: 100%;
+  width: min(100%, 1280px);
   margin: 0 auto;
+  padding: 16px;
+  display: grid;
+  gap: 16px;
 }
 
 .page-section {
-  padding: 16px;
+  padding: 0;
+}
+
+.page-section_back {
+  padding: 0;
 }
 
 .page-section_action {
-  padding-top: 0;
+  padding: 0;
 }
 
 .feedback {
@@ -332,23 +386,13 @@ async function save() {
 
 @media (min-width: 768px) {
   .page-shell {
-    max-width: 900px;
-  }
-
-  .page-section {
-    padding-left: 32px;
-    padding-right: 32px;
+    padding: 20px 32px;
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1280px) {
   .page-shell {
-    max-width: 900px;
-  }
-
-  .page-section {
-    padding-left: 56px;
-    padding-right: 56px;
+    padding: 24px 48px;
   }
 
   .amount-summary {
