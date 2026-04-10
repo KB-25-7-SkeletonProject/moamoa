@@ -9,7 +9,6 @@ import AddPage from '@/pages/AddPage.vue'
 import RecordDetailPage from '@/pages/RecordDetailPage.vue'
 import { useAuthStore } from '@/stores/authStore'
 
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -58,10 +57,9 @@ const router = createRouter({
       name: 'settings',
       component: SettingsPage,
       meta: { requiresAuth: true },
-    }
+    },
   ],
 })
-
 
 // 인증 가드
 router.beforeEach((to) => {
@@ -70,7 +68,7 @@ router.beforeEach((to) => {
   if (to.meta.requiresAuth && !authStore.isLoggedIn) {
     return '/login'
   }
-  
+
   if (to.meta.guestOnly && authStore.isLoggedIn) {
     return '/home'
   }
