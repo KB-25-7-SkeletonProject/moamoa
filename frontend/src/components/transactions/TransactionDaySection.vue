@@ -7,16 +7,22 @@
 
     <Card class="day-list" padding="sm" :interactive="false">
       <template v-for="(record, index) in records" :key="record.id">
-        <RecordCard
-          :category-id="record.categoryId"
-          :icon="record.icon"
-          :title="record.title"
-          :category="record.category"
-          :created-at="record.time"
-          :amount="record.amount"
-          :balance="record.balance"
-          :type="record.type"
-        />
+        <button
+          type="button"
+          class="record-item-button"
+          @click="$emit('record-click', record.id)"
+        >
+          <RecordCard
+            :category-id="record.categoryId"
+            :icon="record.icon"
+            :title="record.title"
+            :category="record.category"
+            :created-at="record.time"
+            :amount="record.amount"
+            :balance="record.balance"
+            :type="record.type"
+          />
+        </button>
         <Divider v-if="index < records.length - 1" class="day-divider" />
       </template>
     </Card>
@@ -26,6 +32,8 @@
 <script setup>
 import { computed } from 'vue'
 import { Card, Divider, RecordCard } from '@/components/common'
+
+defineEmits(['record-click'])
 
 const props = defineProps({
   title: String,
@@ -98,6 +106,15 @@ const formattedTitle = computed(() => {
   border-radius: 0;
   padding-left: 16px;
   padding-right: 16px;
+}
+
+.record-item-button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
 }
 
 .day-list :deep(.divider) {

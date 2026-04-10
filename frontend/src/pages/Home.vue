@@ -41,16 +41,22 @@
       <DashboardSection title="오늘의 기록">
         <div class="card recent-card">
           <div v-if="todayRecords.length" class="record-list">
-            <RecordCard
+            <button
               v-for="record in todayRecords"
               :key="record.id"
-              :category-id="record.categoryId"
-              :title="record.title"
-              :category="record.category"
-              :created-at="record.time"
-              :amount="record.amount"
-              :type="record.type"
-            />
+              type="button"
+              class="day-record-item-button"
+              @click="openRecordDetail(record.id)"
+            >
+              <RecordCard
+                :category-id="record.categoryId"
+                :title="record.title"
+                :category="record.category"
+                :created-at="record.time"
+                :amount="record.amount"
+                :type="record.type"
+              />
+            </button>
           </div>
           <p v-else class="empty-copy">아직 기록이 없어요!</p>
         </div>
@@ -68,16 +74,22 @@
         <h3 class="day-records-title">{{ selectedDateLabel }}</h3>
 
         <div v-if="selectedDateRecords.length" class="day-records-list">
-          <RecordCard
+          <button
             v-for="record in selectedDateRecords"
             :key="record.id"
-            :category-id="record.categoryId"
-            :title="record.memo || categoryNameById[record.categoryId] || '기타'"
-            :category="categoryNameById[record.categoryId] || '기타'"
-            :created-at="formatTime(record.createdAt)"
-            :amount="formatRecordAmount(record)"
-            :type="record.type"
-          />
+            type="button"
+            class="day-record-item-button"
+            @click="openRecordDetail(record.id)"
+          >
+            <RecordCard
+              :category-id="record.categoryId"
+              :title="record.memo || categoryNameById[record.categoryId] || '기타'"
+              :category="categoryNameById[record.categoryId] || '기타'"
+              :created-at="formatTime(record.createdAt)"
+              :amount="formatRecordAmount(record)"
+              :type="record.type"
+            />
+          </button>
         </div>
         <p v-else class="empty-copy">이 날짜의 수입/지출 기록이 없습니다.</p>
       </section>
@@ -87,6 +99,7 @@
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 import Calendar from '@/components/common/Calendar.vue'
 import Modal from '@/components/common/Modal.vue'
@@ -98,6 +111,7 @@ import { formatExactCurrency } from '@/utils/transaction'
 import RecordCard from '@/components/common/RecordCard.vue'
 
 const user = loadUser()
+const router = useRouter()
 const initialNow = new Date()
 const currentDate = ref(new Date())
 const displayYear = ref(initialNow.getFullYear())
@@ -248,6 +262,12 @@ function closeDayRecordsModal() {
   isDayRecordsModalOpen.value = false
 }
 
+function openRecordDetail(recordId) {
+  if (!recordId) return
+  isDayRecordsModalOpen.value = false
+  router.push(`/records/${recordId}`)
+}
+
 async function fetchRecords() {
   if (!user?.id) {
     records.value = []
@@ -386,6 +406,15 @@ function formatRecordAmount(record) {
 .day-records-list {
   display: grid;
   gap: 10px;
+}
+
+.day-record-item-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
 }
 
 .day-records-list :deep(.record) {

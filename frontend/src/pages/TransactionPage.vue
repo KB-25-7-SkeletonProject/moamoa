@@ -51,9 +51,10 @@
             :total="group.total"
             :total-type="group.totalType"
             :records="group.records"
+            @record-click="openRecordDetail"
           />
           <p v-if="!errorMessage && visibleTransactionGroups.length === 0" class="empty-message">
-            표시할 거래 내역이 없습니다. 필터를 초기화해보세요.
+            표시할 거래 내역이 없습니다.
           </p>
           <div ref="loadMoreSentinel" class="load-more-sentinel" aria-hidden="true"></div>
         </div>
@@ -71,6 +72,7 @@
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { Card, SummaryCard } from '@/components/common'
 import LayoutWrapper from '@/components/layout/LayoutWrapper.vue'
 import TransactionCategoryInlineFilter from '@/components/transactions/TransactionCategoryInlineFilter.vue'
@@ -128,6 +130,7 @@ const dateFilter = ref({
 })
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 function resolveUserId(userValue) {
   if (!userValue) return null
@@ -180,7 +183,7 @@ const fetchData = async () => {
 // computed
 const allRecords = computed(() => flattenTransactionGroups(transactionGroups.value))
 const monthOptions = computed(() => [
-  { value: '', label: '전체' },
+  { value: '', label: '월 선택' },
   ...buildMonthOptions(allRecords.value),
 ])
 
@@ -226,6 +229,11 @@ function applyDateFilter(nextDateFilter) {
   }
   visibleGroupCount.value = PAGE_SIZE
   isDateModalOpen.value = false
+}
+
+function openRecordDetail(recordId) {
+  if (!recordId) return
+  router.push(`/records/${recordId}`)
 }
 
 onMounted(async () => {
