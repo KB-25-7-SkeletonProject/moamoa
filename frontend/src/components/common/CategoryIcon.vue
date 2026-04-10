@@ -9,7 +9,7 @@ import { getCategoryIconById } from '@/constants/categoryIconMap'
 const props = defineProps({
   categoryId: {
     type: String,
-    required: true,
+    default: '',
   },
   alt: {
     type: String,
@@ -17,7 +17,7 @@ const props = defineProps({
   },
 })
 
-const src = computed(() => getCategoryIconById(props.categoryId))
+const src = computed(() => getCategoryIconById(String(props.categoryId || '')))
 </script>
 
 <style scoped>

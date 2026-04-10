@@ -3,10 +3,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginPage from '@/pages/LoginPage.vue'
 import Home from '@/pages/Home.vue'
 import Statistics from '@/pages/Statistics.vue'
-import RecordPage from '@/pages/RecordPage.vue'
 import SettingsPage from '@/pages/SettingsPage.vue'
 import TransactionPage from '@/pages/TransactionPage.vue'
 import AddPage from '@/pages/AddPage.vue'
+import { useAuthStore } from '@/stores/authStore'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,8 +29,8 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/transaction',
-      name: 'transaction',
+      path: '/transactions',
+      name: 'transactions',
       component: TransactionPage,
       meta: { requiresAuth: true },
     },
@@ -54,19 +55,16 @@ const router = createRouter({
   ],
 })
 
+
 // 인증 가드
 router.beforeEach((to) => {
-  const hasUser =
-    typeof window !== 'undefined' &&
-    Boolean(window.sessionStorage.getItem('moamoa-user'))
+  const authStore = useAuthStore()
 
-  // 로그인 필요한 페이지 접근 시
-  if (to.meta.requiresAuth && !hasUser) {
+  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
     return '/login'
   }
-
-  // 로그인된 상태에서 로그인 페이지 접근 시
-  if (to.meta.guestOnly && hasUser) {
+  
+  if (to.meta.guestOnly && authStore.isLoggedIn) {
     return '/home'
   }
 

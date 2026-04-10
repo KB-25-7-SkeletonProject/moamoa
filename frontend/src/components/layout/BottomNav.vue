@@ -4,7 +4,7 @@
             <BottomNavItem icon="🏠" label="홈" path="/home" :active="route.path === '/home'"/>
             <BottomNavItem icon="📊" label="통계" path="/statistics" :active="route.path === '/statistics'"/>
             <BottomNavItem icon="➕" label="기록 추가" path="/entry" :active="route.path === '/entry'"/>
-            <BottomNavItem icon="📋" label="내역" path="/transaction" :active="route.path === '/transaction'"/>
+            <BottomNavItem icon="📋" label="내역" path="/transactions" :active="route.path === '/transactions'"/>
             <BottomNavItem icon="⚙️" label="설정" path="/settings" :active="route.path === '/settings'"/>
         </div>
     </nav>

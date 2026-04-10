@@ -12,14 +12,14 @@ export const EXPENSE_CATEGORIES = [
 
 // 수입 카테고리
 export const INCOME_CATEGORIES = [
-  { id: "c009", name: "급여", type: "income" },
-  { id: "c010", name: "용돈", type: "income" },
-  { id: "c011", name: "부수입", type: "income" },
-  { id: "c012", name: "이자소득", type: "income" },
-  { id: "c013", name: "상여금", type: "income" },
-  { id: "c014", name: "주식/배당", type: "income" },
-  { id: "c015", name: "포인트", type: "income" },
-  { id: "c016", name: "기타", type: "income" }
+  { id: "c101", name: "급여", type: "income" },
+  { id: "c102", name: "용돈", type: "income" },
+  { id: "c103", name: "부수입", type: "income" },
+  { id: "c104", name: "이자소득", type: "income" },
+  { id: "c105", name: "상여금", type: "income" },
+  { id: "c106", name: "주식/배당", type: "income" },
+  { id: "c107", name: "포인트", type: "income" },
+  { id: "c108", name: "기타", type: "income" }
 ];
 
 // 전체 카테고리
