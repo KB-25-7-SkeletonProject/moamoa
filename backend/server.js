@@ -26,10 +26,22 @@ function saveDatabase(db) {
   fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2))
 }
 
+function getKSTDateTimeString(date = new Date()) {
+  const KST_OFFSET_MS = 9 * 60 * 60 * 1000
+  return new Date(date.getTime() + KST_OFFSET_MS).toISOString().slice(0, 19)
+}
+
 function normalizeRecord(record) {
   return {
-    ...record,
+    id: record.id,
+    userId: record.userId,
+    type: record.type,
     amount: Number(record.amount || 0),
+    categoryId: record.categoryId,
+    memo: record.memo,
+    date: record.date,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
   }
 }
 
@@ -158,7 +170,14 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'POST' && pathname === '/records') {
       try {
         const payload = await collectBody(req)
-        const nextRecord = normalizeRecord(payload)
+        const now = getKSTDateTimeString()
+        const createdAt = payload.createdAt || now
+        const nextRecord = normalizeRecord({
+          ...payload,
+          id: payload.id || `r${Date.now()}`,
+          createdAt,
+          updatedAt: createdAt,
+        })
 
         records.push(nextRecord)
         db.records = records
@@ -184,6 +203,8 @@ const server = http.createServer(async (req, res) => {
         const updatedRecord = normalizeRecord({
           ...records[recordIndex],
           ...payload,
+          createdAt: records[recordIndex].createdAt || getKSTDateTimeString(),
+          updatedAt: getKSTDateTimeString(),
         })
 
         records[recordIndex] = updatedRecord

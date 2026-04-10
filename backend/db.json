@@ -25,200 +25,284 @@
       "updatedAt": "2026-03-10T09:00:00"
     }
   ],
-
   "records": [
-  {
-    "id": "r001",
-    "userId": "u001",
-    "type": "income",
-    "amount": 3000000,
-    "categoryId": "c101",
-    "memo": "1월 월급",
-    "date": "2026-01-01",
-    "createdAt": "2026-01-01T09:00:00",
-    "updatedAt": "2026-01-01T09:00:00"
-  },
-  {
-    "id": "r002",
-    "userId": "u001",
-    "type": "expense",
-    "amount": 8500,
-    "categoryId": "c001",
-    "memo": "커피",
-    "date": "2026-01-02",
-    "createdAt": "2026-01-02T10:00:00",
-    "updatedAt": "2026-01-02T10:00:00"
-  },
-  {
-    "id": "r003",
-    "userId": "u001",
-    "type": "expense",
-    "amount": 12000,
-    "categoryId": "c001",
-    "memo": "점심",
-    "date": "2026-01-03",
-    "createdAt": "2026-01-03T12:30:00",
-    "updatedAt": "2026-01-03T12:30:00"
-  },
-  {
-    "id": "r004",
-    "userId": "u001",
-    "type": "expense",
-    "amount": 18000,
-    "categoryId": "c006",
-    "memo": "카페 + 디저트",
-    "date": "2026-01-04",
-    "createdAt": "2026-01-04T15:00:00",
-    "updatedAt": "2026-01-04T15:00:00"
-  },
-
-  {
-    "id": "r050",
-    "userId": "u001",
-    "type": "income",
-    "amount": 3000000,
-    "categoryId": "c101",
-    "memo": "2월 월급",
-    "date": "2026-02-01",
-    "createdAt": "2026-02-01T09:00:00",
-    "updatedAt": "2026-02-01T09:00:00"
-  },
-  {
-    "id": "r051",
-    "userId": "u001",
-    "type": "expense",
-    "amount": 2500,
-    "categoryId": "c002",
-    "memo": "버스",
-    "date": "2026-02-02",
-    "createdAt": "2026-02-02T08:00:00",
-    "updatedAt": "2026-02-02T08:00:00"
-  },
-  {
-    "id": "r052",
-    "userId": "u001",
-    "type": "expense",
-    "amount": 60000,
-    "categoryId": "c003",
-    "memo": "쇼핑",
-    "date": "2026-02-05",
-    "createdAt": "2026-02-05T20:00:00",
-    "updatedAt": "2026-02-05T20:00:00"
-  },
-
-  {
-    "id": "r100",
-    "userId": "u001",
-    "type": "income",
-    "amount": 3000000,
-    "categoryId": "c101",
-    "memo": "3월 월급",
-    "date": "2026-03-01",
-    "createdAt": "2026-03-01T09:00:00",
-    "updatedAt": "2026-03-01T09:00:00"
-  },
-  {
-    "id": "r101",
-    "userId": "u001",
-    "type": "income",
-    "amount": 120000,
-    "categoryId": "c103",
-    "memo": "부수입",
-    "date": "2026-03-10",
-    "createdAt": "2026-03-10T14:00:00",
-    "updatedAt": "2026-03-10T14:00:00"
-  },
-  {
-    "id": "r102",
-    "userId": "u001",
-    "type": "expense",
-    "amount": 45000,
-    "categoryId": "c004",
-    "memo": "병원",
-    "date": "2026-03-11",
-    "createdAt": "2026-03-11T16:00:00",
-    "updatedAt": "2026-03-11T16:00:00"
-  },
-
-  {
-    "id": "r150",
-    "userId": "u001",
-    "type": "income",
-    "amount": 3000000,
-    "categoryId": "c101",
-    "memo": "4월 월급",
-    "date": "2026-04-01",
-    "createdAt": "2026-04-01T09:00:00",
-    "updatedAt": "2026-04-01T09:00:00"
-  },
-  {
-    "id": "r151",
-    "userId": "u001",
-    "type": "expense",
-    "amount": 13000,
-    "categoryId": "c001",
-    "memo": "점심",
-    "date": "2026-04-02",
-    "createdAt": "2026-04-02T12:00:00",
-    "updatedAt": "2026-04-02T12:00:00"
-  },
-  {
-    "id": "r152",
-    "userId": "u001",
-    "type": "expense",
-    "amount": 90000,
-    "categoryId": "c007",
-    "memo": "관리비",
-    "date": "2026-04-03",
-    "createdAt": "2026-04-03T09:00:00",
-    "updatedAt": "2026-04-03T09:00:00"
-  },
-  {
-    "id": "r153",
-    "userId": "u001",
-    "type": "expense",
-    "amount": 30000,
-    "categoryId": "c001",
-    "memo": "밥먹음",
-    "date": "2026-04-03",
-    "createdAt": "2026-04-03T10:00:00",
-    "updatedAt": "2026-04-03T010:00:00"
-  }
-],
+    {
+      "id": "r001",
+      "userId": "u001",
+      "type": "income",
+      "amount": 3000000,
+      "categoryId": "c101",
+      "memo": "1월 월급",
+      "date": "2026-01-01",
+      "createdAt": "2026-01-01T09:00:00",
+      "updatedAt": "2026-01-01T09:00:00"
+    },
+    {
+      "id": "r002",
+      "userId": "u001",
+      "type": "expense",
+      "amount": 8500,
+      "categoryId": "c001",
+      "memo": "커피",
+      "date": "2026-01-02",
+      "createdAt": "2026-01-02T10:00:00",
+      "updatedAt": "2026-01-02T10:00:00"
+    },
+    {
+      "id": "r003",
+      "userId": "u001",
+      "type": "expense",
+      "amount": 12000,
+      "categoryId": "c001",
+      "memo": "점심",
+      "date": "2026-01-03",
+      "createdAt": "2026-01-03T12:30:00",
+      "updatedAt": "2026-01-03T12:30:00"
+    },
+    {
+      "id": "r004",
+      "userId": "u001",
+      "type": "expense",
+      "amount": 18000,
+      "categoryId": "c006",
+      "memo": "카페 + 디저트",
+      "date": "2026-01-04",
+      "createdAt": "2026-01-04T15:00:00",
+      "updatedAt": "2026-01-04T15:00:00"
+    },
+    {
+      "id": "r050",
+      "userId": "u001",
+      "type": "income",
+      "amount": 3000000,
+      "categoryId": "c101",
+      "memo": "2월 월급",
+      "date": "2026-02-01",
+      "createdAt": "2026-02-01T09:00:00",
+      "updatedAt": "2026-02-01T09:00:00"
+    },
+    {
+      "id": "r051",
+      "userId": "u001",
+      "type": "expense",
+      "amount": 2500,
+      "categoryId": "c002",
+      "memo": "버스",
+      "date": "2026-02-02",
+      "createdAt": "2026-02-02T08:00:00",
+      "updatedAt": "2026-02-02T08:00:00"
+    },
+    {
+      "id": "r052",
+      "userId": "u001",
+      "type": "expense",
+      "amount": 60000,
+      "categoryId": "c003",
+      "memo": "쇼핑",
+      "date": "2026-02-05",
+      "createdAt": "2026-02-05T20:00:00",
+      "updatedAt": "2026-02-05T20:00:00"
+    },
+    {
+      "id": "r100",
+      "userId": "u001",
+      "type": "income",
+      "amount": 3000000,
+      "categoryId": "c101",
+      "memo": "3월 월급",
+      "date": "2026-03-01",
+      "createdAt": "2026-03-01T09:00:00",
+      "updatedAt": "2026-03-01T09:00:00"
+    },
+    {
+      "id": "r101",
+      "userId": "u001",
+      "type": "income",
+      "amount": 120000,
+      "categoryId": "c103",
+      "memo": "부수입",
+      "date": "2026-03-10",
+      "createdAt": "2026-03-10T14:00:00",
+      "updatedAt": "2026-03-10T14:00:00"
+    },
+    {
+      "id": "r102",
+      "userId": "u001",
+      "type": "expense",
+      "amount": 45000,
+      "categoryId": "c004",
+      "memo": "병원",
+      "date": "2026-03-11",
+      "createdAt": "2026-03-11T16:00:00",
+      "updatedAt": "2026-03-11T16:00:00"
+    },
+    {
+      "id": "r150",
+      "userId": "u001",
+      "type": "income",
+      "amount": 3000000,
+      "categoryId": "c101",
+      "memo": "4월 월급",
+      "date": "2026-04-01",
+      "createdAt": "2026-04-01T09:00:00",
+      "updatedAt": "2026-04-01T09:00:00"
+    },
+    {
+      "id": "r151",
+      "userId": "u001",
+      "type": "expense",
+      "amount": 13000,
+      "categoryId": "c001",
+      "memo": "점심",
+      "date": "2026-04-02",
+      "createdAt": "2026-04-02T12:00:00",
+      "updatedAt": "2026-04-02T12:00:00"
+    }
+  ],
   "categories": [
-    { "id": "c001", "name": "식비", "type": "expense" },
-    { "id": "c002", "name": "교통", "type": "expense" },
-    { "id": "c003", "name": "쇼핑", "type": "expense" },
-    { "id": "c004", "name": "의료", "type": "expense" },
-    { "id": "c005", "name": "교육", "type": "expense" },
-    { "id": "c006", "name": "여가", "type": "expense" },
-    { "id": "c007", "name": "주거", "type": "expense" },
-    { "id": "c008", "name": "기타", "type": "expense" },
-    
-    { "id": "c101", "name": "급여", "type": "income" },
-    { "id": "c102", "name": "용돈", "type": "income" },
-    { "id": "c103", "name": "부수입", "type": "income" },
-    { "id": "c104", "name": "이자소득", "type": "income" },
-    { "id": "c105", "name": "상여금", "type": "income" },
-    { "id": "c106", "name": "주식/배당", "type": "income" },
-    { "id": "c107", "name": "포인트", "type": "income" },
-    { "id": "c108", "name": "기타", "type": "income" }
+    {
+      "id": "c001",
+      "name": "식비",
+      "type": "expense"
+    },
+    {
+      "id": "c002",
+      "name": "교통",
+      "type": "expense"
+    },
+    {
+      "id": "c003",
+      "name": "쇼핑",
+      "type": "expense"
+    },
+    {
+      "id": "c004",
+      "name": "의료",
+      "type": "expense"
+    },
+    {
+      "id": "c005",
+      "name": "교육",
+      "type": "expense"
+    },
+    {
+      "id": "c006",
+      "name": "여가",
+      "type": "expense"
+    },
+    {
+      "id": "c007",
+      "name": "주거",
+      "type": "expense"
+    },
+    {
+      "id": "c008",
+      "name": "기타",
+      "type": "expense"
+    },
+    {
+      "id": "c101",
+      "name": "급여",
+      "type": "income"
+    },
+    {
+      "id": "c102",
+      "name": "용돈",
+      "type": "income"
+    },
+    {
+      "id": "c103",
+      "name": "부수입",
+      "type": "income"
+    },
+    {
+      "id": "c104",
+      "name": "이자소득",
+      "type": "income"
+    },
+    {
+      "id": "c105",
+      "name": "상여금",
+      "type": "income"
+    },
+    {
+      "id": "c106",
+      "name": "주식/배당",
+      "type": "income"
+    },
+    {
+      "id": "c107",
+      "name": "포인트",
+      "type": "income"
+    },
+    {
+      "id": "c108",
+      "name": "기타",
+      "type": "income"
+    }
   ],
   "attendances": [
-    { "id": "a001", "userId": "u001", "date": "2026-03-01", "createdAt": "2026-03-01T00:01:00" },
-    { "id": "a002", "userId": "u001", "date": "2026-03-02", "createdAt": "2026-03-02T00:01:00" },
-    { "id": "a003", "userId": "u001", "date": "2026-03-04", "createdAt": "2026-03-04T00:01:00" },
-    { "id": "a004", "userId": "u001", "date": "2026-04-01", "createdAt": "2026-04-01T00:01:00" },
-    { "id": "a005", "userId": "u001", "date": "2026-04-02", "createdAt": "2026-04-02T00:01:00" },
-
-    { "id": "a006", "userId": "u002", "date": "2026-03-01", "createdAt": "2026-03-01T00:01:00" },
-    { "id": "a007", "userId": "u002", "date": "2026-03-05", "createdAt": "2026-03-05T00:01:00" },
-    { "id": "a008", "userId": "u002", "date": "2026-04-03", "createdAt": "2026-04-03T00:01:00" },
-
-    { "id": "a009", "userId": "u003", "date": "2026-03-03", "createdAt": "2026-03-03T00:01:00" },
-    { "id": "a010", "userId": "u003", "date": "2026-04-04", "createdAt": "2026-04-04T00:01:00" }
+    {
+      "id": "a001",
+      "userId": "u001",
+      "date": "2026-03-01",
+      "createdAt": "2026-03-01T00:01:00"
+    },
+    {
+      "id": "a002",
+      "userId": "u001",
+      "date": "2026-03-02",
+      "createdAt": "2026-03-02T00:01:00"
+    },
+    {
+      "id": "a003",
+      "userId": "u001",
+      "date": "2026-03-04",
+      "createdAt": "2026-03-04T00:01:00"
+    },
+    {
+      "id": "a004",
+      "userId": "u001",
+      "date": "2026-04-01",
+      "createdAt": "2026-04-01T00:01:00"
+    },
+    {
+      "id": "a005",
+      "userId": "u001",
+      "date": "2026-04-02",
+      "createdAt": "2026-04-02T00:01:00"
+    },
+    {
+      "id": "a006",
+      "userId": "u002",
+      "date": "2026-03-01",
+      "createdAt": "2026-03-01T00:01:00"
+    },
+    {
+      "id": "a007",
+      "userId": "u002",
+      "date": "2026-03-05",
+      "createdAt": "2026-03-05T00:01:00"
+    },
+    {
+      "id": "a008",
+      "userId": "u002",
+      "date": "2026-04-03",
+      "createdAt": "2026-04-03T00:01:00"
+    },
+    {
+      "id": "a009",
+      "userId": "u003",
+      "date": "2026-03-03",
+      "createdAt": "2026-03-03T00:01:00"
+    },
+    {
+      "id": "a010",
+      "userId": "u003",
+      "date": "2026-04-04",
+      "createdAt": "2026-04-04T00:01:00"
+    }
   ],
-
   "ads": [
     {
       "id": "ad01",
