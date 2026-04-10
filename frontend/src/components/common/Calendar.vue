@@ -26,7 +26,12 @@
         :key="day.date"
         type="button"
         :disabled="!interactive"
-        :class="['day', day.date === today ? 'today' : '', !interactive ? 'readonly' : '']"
+        :class="[
+          'day',
+          day.checked ? 'checked' : '',
+          day.date === today ? 'today' : '',
+          !interactive ? 'readonly' : '',
+        ]"
         @click="handleDayClick(day)"
       >
         <span class="dayNumber">{{ day.date }}</span>
@@ -233,6 +238,14 @@ function resolveMarks(day) {
 .day.today {
   background: var(--surface-highlight);
   font-weight: var(--font-weight-700);
+}
+
+.day.checked {
+  background: var(--surface-muted);
+}
+
+.day.today.checked {
+  background: var(--surface-highlight);
 }
 
 .dayNumber {
