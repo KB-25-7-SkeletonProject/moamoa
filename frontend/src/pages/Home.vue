@@ -14,19 +14,6 @@
         </div>
       </section>
 
-      <DashboardSection title="캘린더">
-        <Calendar
-          :year="displayYear"
-          :month="displayMonth"
-          :days="calendarDays"
-          :today="todayInView"
-          :interactive="true"
-          @prev="moveMonth(-1)"
-          @next="moveMonth(1)"
-          @day-click="openDayRecordsModal"
-        />
-      </DashboardSection>
-
       <section class="attendance-summary">
         <article class="attendance-count-box card">
           <span class="summary-label">이번 달 출석</span>
@@ -38,27 +25,17 @@
         </article>
       </section>
 
-      <DashboardSection title="이번 달 요약">
-        <div v-if="hasMonthlyRecords" class="monthly-pie-grid">
-          <StatisticsPieCard
-            title="지출"
-            center-label="총지출"
-            :total-amount="monthlyExpensePie.totalAmount"
-            :items="monthlyExpensePie.items"
-            :show-total-amount="false"
-          />
-          <StatisticsPieCard
-            title="수입"
-            center-label="총수입"
-            :total-amount="monthlyIncomePie.totalAmount"
-            :items="monthlyIncomePie.items"
-            :show-total-amount="false"
-          />
-        </div>
-        <div v-else class="card recent-card">
-          <p class="empty-copy">이번 달 기록이 없어요!</p>
-        </div>
-        <RouterLink class="stats-link" to="/statistics">자세히 보기</RouterLink>
+      <DashboardSection title="캘린더">
+        <Calendar
+          :year="displayYear"
+          :month="displayMonth"
+          :days="calendarDays"
+          :today="todayInView"
+          :interactive="true"
+          @prev="moveMonth(-1)"
+          @next="moveMonth(1)"
+          @day-click="openDayRecordsModal"
+        />
       </DashboardSection>
 
       <DashboardSection title="오늘의 기록">
@@ -83,6 +60,29 @@
           </div>
           <p v-else class="empty-copy">아직 기록이 없어요!</p>
         </div>
+      </DashboardSection>
+
+      <DashboardSection title="이번 달 요약">
+        <div v-if="hasMonthlyRecords" class="monthly-pie-grid">
+          <StatisticsPieCard
+            title="지출"
+            center-label="총지출"
+            :total-amount="monthlyExpensePie.totalAmount"
+            :items="monthlyExpensePie.items"
+            :show-total-amount="false"
+          />
+          <StatisticsPieCard
+            title="수입"
+            center-label="총수입"
+            :total-amount="monthlyIncomePie.totalAmount"
+            :items="monthlyIncomePie.items"
+            :show-total-amount="false"
+          />
+        </div>
+        <div v-else class="card recent-card">
+          <p class="empty-copy">이번 달 기록이 없어요!</p>
+        </div>
+        <RouterLink class="stats-link" to="/statistics">자세히 보기</RouterLink>
       </DashboardSection>
 
       <DashboardSection title="추천 광고">
