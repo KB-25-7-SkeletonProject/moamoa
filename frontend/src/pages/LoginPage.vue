@@ -99,7 +99,7 @@ async function submit() {
 
     isSuccessModalOpen.value = true
   } catch (error) {
-    errorMessage.value = error.message || '로그인 중 오류가 발생했습니다.'
+    errorMessage.value = error.response?.data?.message || '로그인 중 오류가 발생했습니다.'
   } finally {
     isSubmitting.value = false
   }
