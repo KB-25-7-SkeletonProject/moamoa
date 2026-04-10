@@ -2,6 +2,7 @@
   <div class="login-shell">
     <section class="login-card">
       <p class="login-eyebrow">MOAMOA LOGIN</p>
+      <img class="login-logo" :src="logoImage" alt="MOAMOA logo" />
       <h1 class="login-title">모아모아</h1>
       <h2 class="login-title">가계부를 시작해보세요</h2>
 
@@ -33,13 +34,6 @@
         <button type="submit" class="action-button login-button" :disabled="isSubmitting">
           {{ isSubmitting ? '로그인 중...' : '로그인' }}
         </button>
-        <button
-          type="button"
-          class="action-button login-button signup-button"
-          @click="openSignupNotice"
-        >
-          회원가입
-        </button>
       </form>
     </section>
 
@@ -48,7 +42,9 @@
         <div class="success-badge">MOA</div>
         <p class="success-eyebrow">LOGIN SUCCESS</p>
         <h3 class="success-title">로그인이 완료되었어요</h3>
-        <p class="success-copy">오늘 출석도 함께 체크했어요. 확인을 누르면 대시보드로 이동합니다.</p>
+        <p class="success-copy">
+          오늘 출석도 함께 체크했어요. 확인을 누르면 대시보드로 이동합니다.
+        </p>
         <button type="button" class="action-button success-button" @click="closeSuccessModal">
           확인
         </button>
@@ -63,6 +59,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 
 import Modal from '@/components/common/Modal.vue'
+import logoImage from '@/assets/images/logo/Logo_brown-no-bg-tight-bottom.png'
 
 const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'http://localhost:3000'
 
@@ -133,23 +130,20 @@ function formatToday() {
   const date = String(now.getDate()).padStart(2, '0')
   return `${year}-${month}-${date}`
 }
-
-function openSignupNotice() {
-  window.alert('관리자에게 문의해주세요')
-}
 </script>
 
 <style scoped>
+.login-logo {
+  display: block;
+  width: min(100%, 220px);
+  margin: 10px auto 0px;
+  object-fit: contain;
+}
+
 .login-error {
   margin: 0;
   color: var(--expense);
   font-size: var(--font-size-13);
-}
-
-.signup-button {
-  background: #F3F5F9;
-  box-shadow: none;
-  color: var(--muted);
 }
 
 .login-button:disabled {
@@ -170,7 +164,7 @@ function openSignupNotice() {
   border-radius: 18px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #FFE168 0%, #FFCC00 100%);
+  background: linear-gradient(135deg, #ffe168 0%, #ffcc00 100%);
   color: #453500;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -184,14 +178,14 @@ function openSignupNotice() {
 }
 
 .success-eyebrow {
-  color: #BF8D00;
+  color: #bf8d00;
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.14em;
 }
 
 .success-title {
-  color: #18233A;
+  color: #18233a;
   font-size: 1.35rem;
   font-weight: 800;
 }
