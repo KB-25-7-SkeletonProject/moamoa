@@ -42,6 +42,7 @@
         <div class="success-badge">MOA</div>
         <p class="success-eyebrow">LOGIN SUCCESS</p>
         <h3 class="success-title">로그인이 완료되었어요</h3>
+        <br />
         <p class="success-copy">
           오늘 출석도 함께 체크했어요. 확인을 누르면 대시보드로 이동합니다.
         </p>
