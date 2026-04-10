@@ -60,7 +60,7 @@
     <Modal
       :is-open="isDayRecordsModalOpen"
       size="lg"
-      :max-width="680"
+      :max-width="980"
       show-close
       @close="closeDayRecordsModal"
     >
@@ -68,17 +68,16 @@
         <h3 class="day-records-title">{{ selectedDateLabel }}</h3>
 
         <div v-if="selectedDateRecords.length" class="day-records-list">
-          <div v-for="record in selectedDateRecords" :key="record.id" class="day-record-row">
-            <div class="day-record-main">
-              <p class="record-title">{{ record.memo || categoryNameById[record.categoryId] || '기타' }}</p>
-              <p class="record-sub">
-                {{ categoryNameById[record.categoryId] || '기타' }} · {{ formatTime(record.createdAt) }}
-              </p>
-            </div>
-            <strong :class="['day-record-amount', record.type === 'income' ? 'income' : 'expense']">
-              {{ formatRecordAmount(record) }}
-            </strong>
-          </div>
+          <RecordCard
+            v-for="record in selectedDateRecords"
+            :key="record.id"
+            :category-id="record.categoryId"
+            :title="record.memo || categoryNameById[record.categoryId] || '기타'"
+            :category="categoryNameById[record.categoryId] || '기타'"
+            :created-at="formatTime(record.createdAt)"
+            :amount="formatRecordAmount(record)"
+            :type="record.type"
+          />
         </div>
         <p v-else class="empty-copy">이 날짜의 수입/지출 기록이 없습니다.</p>
       </section>
@@ -369,6 +368,7 @@ function formatRecordAmount(record) {
 .day-records-modal {
   display: grid;
   gap: 10px;
+  width: min(84vw, 920px);
 }
 
 .day-records-title {
@@ -385,35 +385,57 @@ function formatRecordAmount(record) {
 
 .day-records-list {
   display: grid;
+  gap: 10px;
 }
 
-.day-record-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 28px;
-  padding: 14px 4px;
-  border-bottom: 1px solid var(--border);
+.day-records-list :deep(.record) {
+  width: 100%;
+  min-height: 72px;
+  padding: 14px 16px;
 }
 
-.day-record-row:last-child {
-  border-bottom: 0;
+.day-records-list :deep(.recordTitle) {
+  font-size: var(--font-size-16);
 }
 
-.day-record-main {
-  flex: 1;
-  min-width: 0;
-}
-
-.day-record-amount {
-  flex-shrink: 0;
-  min-width: 126px;
-  text-align: right;
+.day-records-list :deep(.recordAmount) {
+  font-size: var(--font-size-16);
 }
 
 @media (min-width: 768px) {
   .dashboard-page {
     padding: 20px 32px;
+  }
+
+  .day-records-modal {
+    width: min(82vw, 920px);
+  }
+
+  .day-records-list {
+    gap: 14px;
+  }
+
+  .day-records-list :deep(.record) {
+    min-height: 84px;
+    padding: 16px 22px;
+  }
+
+  .day-records-list :deep(.recordTitle) {
+    font-size: var(--font-size-18);
+  }
+
+  .day-records-list :deep(.recordMeta) {
+    font-size: var(--font-size-13);
+  }
+
+  .day-records-list :deep(.recordAmount) {
+    font-size: var(--font-size-18);
+  }
+}
+
+@media (max-width: 480px) {
+  .day-records-modal {
+    width: calc(100vw - 56px);
   }
 }
 
