@@ -734,8 +734,8 @@
   place-items: center;
   padding: 24px;
   background:
-    radial-gradient(circle at top left, rgba(255, 225, 104, 0.65), transparent 30%),
-    linear-gradient(160deg, #18233a 0%, #253557 48%, #f5f6f8 48%, #f5f6f8 100%);
+    radial-gradient(circle at top left, rgba(255, 225, 104, 0.78), transparent 32%),
+    linear-gradient(160deg, #ffe68c 0%, #ffcc00 48%, #fff5cf 48%, #f5f6f8 100%);
 }
 
 .login-card {
@@ -762,7 +762,7 @@
 
 .login-title {
   margin-top: 12px;
-  font-size: clamp(1.8rem, 4vw, 2.3rem);
+  font-size: clamp(1.6rem, 3.6vw, 2.1rem);
   line-height: 1.2;
   color: #18233a;
 }
