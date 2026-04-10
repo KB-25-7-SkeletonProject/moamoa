@@ -109,6 +109,7 @@ async function submit() {
     const todayAttendance = formatToday()
     const nextAttendances = Array.from(new Set([...savedAttendances, todayAttendance])).sort()
 
+    authStore.login(data.user)
     window.localStorage.setItem('token', data.user.id)
     window.localStorage.setItem(attendanceKey, JSON.stringify(nextAttendances))
 
