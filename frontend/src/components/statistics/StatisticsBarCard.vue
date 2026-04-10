@@ -9,7 +9,11 @@
       >
         <span class="bar-label" :class="{ active: item.active }">{{ item.label }}</span>
         <div class="bar-track">
-          <div class="bar-fill" :style="{ width: `${item.width}%`, background: item.color }" />
+          <div
+            v-if="item.rawAmount > 0"
+            class="bar-fill"
+            :style="{ width: `${item.width}%`, background: item.color }"
+          />
         </div>
         <span class="bar-amount" :class="{ active: item.active }">{{ item.amount }}</span>
       </div>

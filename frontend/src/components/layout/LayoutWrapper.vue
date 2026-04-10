@@ -14,6 +14,7 @@
         <main>
             <slot />
         </main>
+        <FloatingButton />
         <BottomNav />
     </div>
 </template>
@@ -21,6 +22,7 @@
 <script setup>
 import AppHeader from '@/components/layout/AppHeader.vue'
 import BottomNav from '@/components/layout/BottomNav.vue'
+import FloatingButton from '@/components/layout/FloatingButton.vue'
 
 defineEmits(['back', 'action'])
 
@@ -49,6 +51,6 @@ defineProps({
 }
 
 main {
-    padding-bottom: 60px;
+    padding-bottom: 132px;
 }
 </style>

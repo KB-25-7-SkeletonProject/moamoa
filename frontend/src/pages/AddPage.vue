@@ -167,7 +167,7 @@ async function save() {
       date: date.value,
     })
 
-    router.push('/')
+    router.push('/home')
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '저장 중 문제가 발생했습니다.'
   } finally {
