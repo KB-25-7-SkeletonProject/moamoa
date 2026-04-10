@@ -94,15 +94,15 @@ defineProps({
 }
 
 .comp-current-group.better .comp-val {
-  color: var(--stats-comparison-better);
+  color: var(--income);
 }
 
 .comp-current-group.worse .comp-val {
-  color: var(--stats-comparison-worse);
+  color: var(--expense);
 }
 
 .comp-current-group.same .comp-val {
-  color: var(--stats-comparison-same);
+  color: var(--text-muted);
 }
 
 .comp-val.current {
