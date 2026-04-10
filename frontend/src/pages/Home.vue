@@ -20,9 +20,10 @@
           :month="displayMonth"
           :days="calendarDays"
           :today="todayInView"
-          :interactive="false"
+          :interactive="true"
           @prev="moveMonth(-1)"
           @next="moveMonth(1)"
+          @day-click="openDayRecordsModal"
         />
       </DashboardSection>
 
@@ -55,32 +56,84 @@
         </div>
       </DashboardSection>
     </div>
+
+    <Modal
+      :is-open="isDayRecordsModalOpen"
+      size="lg"
+      :max-width="980"
+      show-close
+      @close="closeDayRecordsModal"
+    >
+      <section class="day-records-modal">
+        <h3 class="day-records-title">{{ selectedDateLabel }}</h3>
+
+        <div v-if="selectedDateRecords.length" class="day-records-list">
+          <RecordCard
+            v-for="record in selectedDateRecords"
+            :key="record.id"
+            :category-id="record.categoryId"
+            :title="record.memo || categoryNameById[record.categoryId] || '기타'"
+            :category="categoryNameById[record.categoryId] || '기타'"
+            :created-at="formatTime(record.createdAt)"
+            :amount="formatRecordAmount(record)"
+            :type="record.type"
+          />
+        </div>
+        <p v-else class="empty-copy">이 날짜의 수입/지출 기록이 없습니다.</p>
+      </section>
+    </Modal>
   </LayoutWrapper>
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import Calendar from '@/components/common/Calendar.vue'
-import RecordCard from '@/components/common/RecordCard.vue'
+import Modal from '@/components/common/Modal.vue'
 import DashboardSection from '@/components/dashboard/DashboardSection.vue'
 import LayoutWrapper from '@/components/layout/LayoutWrapper.vue'
-import { fetchTransactionGroups } from '@/services/transactions'
-import { flattenTransactionGroups } from '@/utils/transaction'
+import { ALL_CATEGORIES } from '@/constants/category'
+import { readRecords } from '@/services/finance'
+import { formatExactCurrency } from '@/utils/transaction'
+import RecordCard from '@/components/common/RecordCard.vue'
 
 const user = loadUser()
-const now = new Date()
-const todayDateKey = buildDateKey(now.getFullYear(), now.getMonth() + 1, now.getDate())
-const displayYear = ref(now.getFullYear())
-const displayMonth = ref(now.getMonth() + 1)
+const initialNow = new Date()
+const currentDate = ref(new Date())
+const displayYear = ref(initialNow.getFullYear())
+const displayMonth = ref(initialNow.getMonth() + 1)
 const checkedDates = ref(loadCheckedDates(user?.id))
-const todayRecords = ref([])
+const records = ref([])
+const isDayRecordsModalOpen = ref(false)
+const selectedDateKey = ref('')
+let clockTimer = null
+
+const categoryNameById = ALL_CATEGORIES.reduce((acc, item) => {
+  acc[item.id] = item.name
+  return acc
+}, {})
+const todayRecords = computed(() =>
+  records.value.filter((record) => record.date === todayDateKey.value).map((record) => ({
+    ...record,
+    title: record.memo || categoryNameById[record.categoryId] || '기타',
+    category: categoryNameById[record.categoryId] || '기타',
+    time: formatTime(record.createdAt),
+    amount: formatRecordAmount(record),
+  })),
+)
 
 const dashboardTitle = computed(() =>
   user?.name ? `${user.name}님의 용돈기입장 MoaMoa` : '용돈기입장 MoaMoa'
 )
 
 const checkedDateSet = computed(() => new Set(checkedDates.value))
+const todayDateKey = computed(() =>
+  buildDateKey(
+    currentDate.value.getFullYear(),
+    currentDate.value.getMonth() + 1,
+    currentDate.value.getDate(),
+  ),
+)
 
 const calendarDays = computed(() => {
   const totalDays = new Date(displayYear.value, displayMonth.value, 0).getDate()
@@ -88,19 +141,23 @@ const calendarDays = computed(() => {
   return Array.from({ length: totalDays }, (_, index) => {
     const date = index + 1
     const key = buildDateKey(displayYear.value, displayMonth.value, date)
+    const dayRecords = recordsByDate.value.get(key) || []
+    const dayMarks = [...new Set(dayRecords.map((record) => record.type))]
 
     return {
       date,
       checked: checkedDateSet.value.has(key),
+      marks: dayMarks,
     }
   })
 })
 
 const todayInView = computed(() => {
   const isCurrentMonth =
-    displayYear.value === now.getFullYear() && displayMonth.value === now.getMonth() + 1
+    displayYear.value === currentDate.value.getFullYear() &&
+    displayMonth.value === currentDate.value.getMonth() + 1
 
-  return isCurrentMonth ? now.getDate() : undefined
+  return isCurrentMonth ? currentDate.value.getDate() : undefined
 })
 
 const checkedCount = computed(() => calendarDays.value.filter((day) => day.checked).length)
@@ -111,13 +168,12 @@ const attendanceRate = computed(() => {
 })
 
 const todayChecked = computed(() => {
-  const todayKey = buildDateKey(now.getFullYear(), now.getMonth() + 1, now.getDate())
-  return checkedDateSet.value.has(todayKey)
+  return checkedDateSet.value.has(todayDateKey.value)
 })
 
 const streakCount = computed(() => {
   let streak = 0
-  const cursor = new Date(now)
+  const cursor = new Date(currentDate.value)
 
   while (true) {
     const key = buildDateKey(cursor.getFullYear(), cursor.getMonth() + 1, cursor.getDate())
@@ -132,6 +188,41 @@ const streakCount = computed(() => {
   return streak
 })
 
+const recordsByDate = computed(() => {
+  const map = new Map()
+
+  records.value.forEach((record) => {
+    const key = record.date
+    if (!key) return
+
+    if (!map.has(key)) {
+      map.set(key, [])
+    }
+    map.get(key).push(record)
+  })
+
+  return map
+})
+
+const selectedDateRecords = computed(() => recordsByDate.value.get(selectedDateKey.value) || [])
+
+const selectedDateLabel = computed(() =>
+  selectedDateKey.value ? formatDateLabel(selectedDateKey.value) : '날짜',
+)
+
+onMounted(fetchRecords)
+onMounted(() => {
+  clockTimer = window.setInterval(() => {
+    currentDate.value = new Date()
+  }, 60 * 1000)
+})
+
+onBeforeUnmount(() => {
+  if (clockTimer) {
+    window.clearInterval(clockTimer)
+  }
+})
+
 watch(
   checkedDates,
   (value) => {
@@ -142,27 +233,33 @@ watch(
   { deep: true }
 )
 
-onMounted(async () => {
-  if (!user?.id) {
-    recentRecords.value = []
-    return
-  }
-
-  try {
-    const groups = await fetchTransactionGroups({ userId: user.id })
-    todayRecords.value = flattenTransactionGroups(groups).filter(
-      (record) => record.dateKey === todayDateKey,
-    )
-  } catch (error) {
-    todayRecords.value = []
-    console.error('오늘 기록을 불러오지 못했습니다.', error)
-  }
-})
-
 function moveMonth(step) {
   const next = new Date(displayYear.value, displayMonth.value - 1 + step, 1)
   displayYear.value = next.getFullYear()
   displayMonth.value = next.getMonth() + 1
+}
+
+function openDayRecordsModal(day) {
+  selectedDateKey.value = buildDateKey(displayYear.value, displayMonth.value, day.date)
+  isDayRecordsModalOpen.value = true
+}
+
+function closeDayRecordsModal() {
+  isDayRecordsModalOpen.value = false
+}
+
+async function fetchRecords() {
+  if (!user?.id) {
+    records.value = []
+    return
+  }
+
+  try {
+    records.value = await readRecords({ userId: user.id })
+  } catch (error) {
+    console.error('❌ home records fetch error', error)
+    records.value = []
+  }
 }
 
 function loadUser() {
@@ -208,6 +305,19 @@ function pad(value) {
   return String(value).padStart(2, '0')
 }
 
+function formatDateLabel(key) {
+  const [year, month, date] = key.split('-')
+  return `${year}년 ${Number(month)}월 ${Number(date)}일`
+}
+
+function formatTime(value) {
+  if (!value) return '00:00'
+  return String(value).slice(11, 16) || '00:00'
+}
+
+function formatRecordAmount(record) {
+  return formatExactCurrency(record.amount, record.type === 'income')
+}
 </script>
 
 <style scoped>
@@ -245,5 +355,93 @@ function pad(value) {
 .record-list {
   display: grid;
   gap: 12px;
+}
+
+.income {
+  color: var(--income);
+}
+
+.expense {
+  color: var(--expense);
+}
+
+.day-records-modal {
+  display: grid;
+  gap: 10px;
+  width: min(84vw, 920px);
+}
+
+.day-records-title {
+  margin: 0;
+  font-size: var(--font-size-18);
+  font-weight: var(--font-weight-700);
+}
+
+.day-records-sub {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-13);
+}
+
+.day-records-list {
+  display: grid;
+  gap: 10px;
+}
+
+.day-records-list :deep(.record) {
+  width: 100%;
+  min-height: 72px;
+  padding: 14px 16px;
+}
+
+.day-records-list :deep(.recordTitle) {
+  font-size: var(--font-size-16);
+}
+
+.day-records-list :deep(.recordAmount) {
+  font-size: var(--font-size-16);
+}
+
+@media (min-width: 768px) {
+  .dashboard-page {
+    padding: 20px 32px;
+  }
+
+  .day-records-modal {
+    width: min(82vw, 920px);
+  }
+
+  .day-records-list {
+    gap: 14px;
+  }
+
+  .day-records-list :deep(.record) {
+    min-height: 84px;
+    padding: 16px 22px;
+  }
+
+  .day-records-list :deep(.recordTitle) {
+    font-size: var(--font-size-18);
+  }
+
+  .day-records-list :deep(.recordMeta) {
+    font-size: var(--font-size-13);
+  }
+
+  .day-records-list :deep(.recordAmount) {
+    font-size: var(--font-size-18);
+  }
+}
+
+@media (max-width: 480px) {
+  .day-records-modal {
+    width: calc(100vw - 56px);
+  }
+}
+
+@media (min-width: 1280px) {
+  .dashboard-page {
+    padding: 24px 48px;
+  }
 }
 </style>

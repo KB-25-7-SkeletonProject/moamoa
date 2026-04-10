@@ -16,6 +16,11 @@ const LEGACY_CATEGORY_ID_MAP = {
   c016: 'c108',
 }
 
+function getKSTDateTimeString(date = new Date()) {
+  const KST_OFFSET_MS = 9 * 60 * 60 * 1000
+  return new Date(date.getTime() + KST_OFFSET_MS).toISOString().slice(0, 19)
+}
+
 function getDefaultUserId() {
   return localStorage.getItem('token') || DEFAULT_USER_ID
 }
@@ -68,7 +73,21 @@ function normalizeCategoryId(value) {
   return LEGACY_CATEGORY_ID_MAP[categoryId] || categoryId
 }
 
-function buildRecordPayload(payload, currentRecord = {}) {
+function orderRecordFields(record) {
+  return {
+    id: record.id,
+    userId: record.userId,
+    type: record.type,
+    amount: Number(record.amount || 0),
+    categoryId: record.categoryId,
+    memo: record.memo,
+    date: record.date,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+  }
+}
+
+function buildRecordPayload(payload, currentRecord = {}, timestamp = getKSTDateTimeString()) {
   const type = payload.type ?? currentRecord.type
   const categoryId = normalizeCategoryId(
     payload.categoryId ?? payload.category ?? currentRecord.categoryId,
@@ -87,8 +106,6 @@ function buildRecordPayload(payload, currentRecord = {}) {
 
   const date = normalizeDateInput(payload.date ?? currentRecord.date)
   const amount = normalizeAmountInput(payload.amount ?? currentRecord.amount)
-  const now = new Date().toISOString()
-
   return {
     ...currentRecord,
     userId,
@@ -97,7 +114,7 @@ function buildRecordPayload(payload, currentRecord = {}) {
     categoryId,
     memo: String(payload.memo ?? currentRecord.memo ?? '').trim(),
     date,
-    updatedAt: now,
+    updatedAt: timestamp,
   }
 }
 
@@ -121,12 +138,13 @@ export async function readRecords({ userId = getDefaultUserId() } = {}) {
 }
 
 export async function createRecord(payload) {
-  const now = new Date().toISOString()
-  const nextRecord = {
+  const now = getKSTDateTimeString()
+  const nextRecord = orderRecordFields({
     id: createRecordId(),
+    ...buildRecordPayload(payload, {}, now),
     createdAt: now,
-    ...buildRecordPayload(payload),
-  }
+    updatedAt: now,
+  })
 
   try {
     const { data } = await api.post(RECORDS_ENDPOINT, nextRecord)
@@ -160,7 +178,7 @@ export async function updateRecord(recordId, payload) {
     return null
   }
 
-  const updatedRecord = buildRecordPayload(payload, currentRecord)
+  const updatedRecord = orderRecordFields(buildRecordPayload(payload, currentRecord))
 
   try {
     const { data } = await api.patch(
