@@ -1,5 +1,12 @@
 <template>
-  <div :class="['card', `pad_${padding}`, variant !== 'default' ? `variant_${variant}` : '']">
+  <div
+    :class="[
+      'card',
+      `pad_${padding}`,
+      variant !== 'default' ? `variant_${variant}` : '',
+      !interactive ? 'cardStatic' : ''
+    ]"
+  >
     <template v-if="hasContentSlots">
       <slot></slot>
     </template>
@@ -30,6 +37,10 @@ defineProps({
     type: String,
     default: 'md',
     validator: (value) => ['sm', 'md', 'lg'].includes(value)
+  },
+  interactive: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -45,9 +56,13 @@ const hasContentSlots = computed(() => Boolean(slots.default))
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.card:hover {
+.card:not(.cardStatic):hover {
   box-shadow: var(--shadow-card-md);
   transform: translateY(-1px);
+}
+
+.cardStatic {
+  transition: none;
 }
 
 .variant_income {

@@ -120,7 +120,7 @@ async function submit() {
 
 function closeSuccessModal() {
   isSuccessModalOpen.value = false
-  router.push('/dashboard')
+  router.push('/home')
 }
 
 function formatToday() {

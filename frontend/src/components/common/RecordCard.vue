@@ -1,11 +1,16 @@
 <template>
   <div class="record">
-    <div class="recordIcon" :style="recordIconStyle">
-      <span class="recordEmoji">{{ resolvedIcon }}</span>
+    <div class="recordIcon">
+      <CategoryIcon
+        v-if="categoryId"
+        :category-id="categoryId"
+        :alt="category || '카테고리 아이콘'"
+      />
+      <span v-else class="recordEmoji">{{ resolvedIcon }}</span>
     </div>
     <div class="recordInfo">
-      <span class="recordTitle">{{ resolvedTitle }}</span>
-      <span v-if="metaText" class="recordMeta">{{ metaText }}</span>
+      <span class="recordTitle">{{ displayTitle }}</span>
+      <span v-if="displayCategory" class="recordMeta">{{ displayCategory }}</span>
     </div>
     <div class="recordAmountWrap">
       <span :class="['recordAmount', type]">{{ amount }}</span>
@@ -19,6 +24,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import CategoryIcon from '@/components/common/CategoryIcon.vue'
 
 const CATEGORY_ICON_MAP = {
   급여: '💰',
@@ -35,14 +41,15 @@ const CATEGORY_ICON_MAP = {
   의료: '💊',
   교육: '📚',
   여가: '🎬',
-  주거: '🏠'
+  주거: '🏠',
 }
 
 defineOptions({
-  name: 'RecordCard'
+  name: 'RecordCard',
 })
 
 const props = defineProps({
+  categoryId: String,
   iconBg: String,
   icon: String,
   title: String,
@@ -53,17 +60,15 @@ const props = defineProps({
   balance: String,
   type: {
     type: String,
-    validator: (value) => !value || ['income', 'expense'].includes(value)
+    validator: (value) => !value || ['income', 'expense'].includes(value),
   },
-  onEdit: Function
+  onEdit: Function,
 })
 
-const recordIconStyle = computed(() => ({
-  background: props.iconBg || 'var(--surface-muted)'
-}))
-
-const resolvedTitle = computed(() => props.title || props.category)
-const metaText = computed(() => [props.memo, props.createdAt].filter(Boolean).join(' · '))
+const displayTitle = computed(() => props.title || props.memo || props.category)
+const displayCategory = computed(() =>
+  [props.category, props.createdAt].filter(Boolean).join(' · '),
+)
 const resolvedIcon = computed(() => props.icon || CATEGORY_ICON_MAP[props.category] || '📦')
 </script>
 
@@ -79,9 +84,8 @@ const resolvedIcon = computed(() => props.icon || CATEGORY_ICON_MAP[props.catego
 }
 
 .recordIcon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,10 +93,14 @@ const resolvedIcon = computed(() => props.icon || CATEGORY_ICON_MAP[props.catego
 }
 
 .recordEmoji {
-  font-size: var(--font-size-18);
+  font-size: 28px;
   line-height: 1;
   text-align: center;
-  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+}
+
+.recordIcon :deep(.icon) {
+  width: 100%;
+  height: 100%;
 }
 
 .recordInfo {
@@ -110,7 +118,7 @@ const resolvedIcon = computed(() => props.icon || CATEGORY_ICON_MAP[props.catego
 }
 
 .recordMeta {
-  font-size: var(--font-size-13);
+  font-size: var(--font-size-12);
   color: var(--text-muted);
 }
 
