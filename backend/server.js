@@ -1,10 +1,10 @@
-const http = require('http')
-const fs = require('fs')
-const path = require('path')
-const { URL } = require('url')
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const { URL } = require('url');
 
-const PORT = process.env.PORT || 3000
-const DB_PATH = path.join(__dirname, 'db.json')
+const PORT = process.env.PORT || 3000;
+const DB_PATH = path.join(__dirname, 'db.json');
 
 function sendJson(res, statusCode, payload) {
   res.writeHead(statusCode, {
@@ -12,23 +12,23 @@ function sendJson(res, statusCode, payload) {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET,POST,PATCH,DELETE,OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  })
+  });
 
-  res.end(JSON.stringify(payload))
+  res.end(JSON.stringify(payload));
 }
 
 function loadDatabase() {
-  const raw = fs.readFileSync(DB_PATH, 'utf8')
-  return JSON.parse(raw)
+  const raw = fs.readFileSync(DB_PATH, 'utf8');
+  return JSON.parse(raw);
 }
 
 function saveDatabase(db) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2))
+  fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
 }
 
 function getKSTDateTimeString(date = new Date()) {
-  const KST_OFFSET_MS = 9 * 60 * 60 * 1000
-  return new Date(date.getTime() + KST_OFFSET_MS).toISOString().slice(0, 19)
+  const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+  return new Date(date.getTime() + KST_OFFSET_MS).toISOString().slice(0, 19);
 }
 
 function normalizeRecord(record) {
@@ -42,162 +42,244 @@ function normalizeRecord(record) {
     date: record.date,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
-  }
+  };
 }
 
 function sendNotFound(res) {
   return sendJson(res, 404, {
     message: '요청한 경로를 찾을 수 없습니다.',
-  })
+  });
 }
 
 function getUserIdFromRequest(req) {
-  const auth = req.headers.authorization || ''
+  const auth = req.headers.authorization || '';
 
   if (auth.startsWith('Bearer ')) {
-    return auth.slice(7).trim()
+    return auth.slice(7).trim();
   }
 
-  return null
+  return null;
+}
+
+function normalizeUser(user) {
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
 }
 
 function collectBody(req) {
   return new Promise((resolve, reject) => {
-    let body = ''
+    let body = '';
 
     req.on('data', (chunk) => {
-      body += chunk
-    })
+      body += chunk;
+    });
 
     req.on('end', () => {
       try {
-        resolve(body ? JSON.parse(body) : {})
+        resolve(body ? JSON.parse(body) : {});
       } catch (error) {
-        reject(error)
+        reject(error);
       }
-    })
+    });
 
-    req.on('error', reject)
-  })
+    req.on('error', reject);
+  });
 }
 
 const server = http.createServer(async (req, res) => {
-  const requestUrl = new URL(req.url, `http://localhost:${PORT}`)
-  const pathname = requestUrl.pathname
+  const requestUrl = new URL(req.url, `http://localhost:${PORT}`);
+  const pathname = requestUrl.pathname;
 
   if (req.method === 'OPTIONS') {
-    return sendJson(res, 204, {})
+    return sendJson(res, 204, {});
   }
 
   if (req.method === 'GET' && pathname === '/api/health') {
-    return sendJson(res, 200, { ok: true })
+    return sendJson(res, 200, { ok: true });
   }
 
   if (req.method === 'POST' && pathname === '/api/login') {
     try {
-      const { email, password } = await collectBody(req)
+      const { email, password } = await collectBody(req);
 
       if (!email || !password) {
         return sendJson(res, 400, {
           message: '이메일과 비밀번호를 모두 입력해주세요.',
-        })
+        });
       }
 
-      const db = loadDatabase()
+      const db = loadDatabase();
       const user = db.users.find(
-        (item) => item.email === email && item.password === password
-      )
+        (item) => item.email === email && item.password === password,
+      );
 
       if (!user) {
         return sendJson(res, 401, {
           message: '이메일 또는 비밀번호가 올바르지 않습니다.',
-        })
+        });
       }
 
       const attendances = (db.attendances || [])
         .filter((item) => item.userId === user.id)
-        .map((item) => item.date)
+        .map((item) => item.date);
 
       return sendJson(res, 200, {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-        },
+        user: normalizeUser(user),
         attendances,
-      })
+      });
     } catch (error) {
       return sendJson(res, 500, {
         message: '로그인 처리 중 오류가 발생했습니다.',
-      })
+      });
+    }
+  }
+
+  if (req.method === 'POST' && pathname === '/api/change-password') {
+    try {
+      const userId = getUserIdFromRequest(req);
+
+      if (!userId) {
+        return sendJson(res, 401, {
+          message: '로그인이 필요합니다.',
+        });
+      }
+
+      const { currentPassword, newPassword, confirmPassword } =
+        await collectBody(req);
+
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        return sendJson(res, 400, {
+          message: '현재 비밀번호와 새 비밀번호를 모두 입력해 주세요.',
+        });
+      }
+
+      if (newPassword !== confirmPassword) {
+        return sendJson(res, 400, {
+          message: '새 비밀번호 확인이 일치하지 않습니다.',
+        });
+      }
+
+      if (String(newPassword).trim().length < 4) {
+        return sendJson(res, 400, {
+          message: '새 비밀번호는 4자 이상이어야 합니다.',
+        });
+      }
+
+      const db = loadDatabase();
+      const userIndex = (db.users || []).findIndex(
+        (item) => item.id === userId,
+      );
+
+      if (userIndex === -1) {
+        return sendJson(res, 404, {
+          message: '사용자를 찾을 수 없습니다.',
+        });
+      }
+
+      const user = db.users[userIndex];
+
+      if (user.password !== currentPassword) {
+        return sendJson(res, 400, {
+          message: '현재 비밀번호가 올바르지 않습니다.',
+        });
+      }
+
+      if (currentPassword === newPassword) {
+        return sendJson(res, 400, {
+          message: '새 비밀번호는 현재 비밀번호와 다르게 입력해 주세요.',
+        });
+      }
+
+      const updatedUser = {
+        ...user,
+        password: newPassword,
+        updatedAt: getKSTDateTimeString(),
+      };
+
+      db.users[userIndex] = updatedUser;
+      saveDatabase(db);
+
+      return sendJson(res, 200, {
+        message: '비밀번호가 변경되었습니다.',
+        user: normalizeUser(updatedUser),
+      });
+    } catch (error) {
+      return sendJson(res, 500, {
+        message: '비밀번호 변경 중 오류가 발생했습니다.',
+      });
     }
   }
 
   if (req.method === 'GET' && pathname === '/categories') {
-    const db = loadDatabase()
-    return sendJson(res, 200, db.categories || [])
+    const db = loadDatabase();
+    return sendJson(res, 200, db.categories || []);
   }
 
   if (req.method === 'GET' && pathname === '/records') {
-    const db = loadDatabase()
-    const queryUserId = requestUrl.searchParams.get('userId')
-    const authUserId = getUserIdFromRequest(req)
-    const requestedUserId = queryUserId || authUserId
-    const records = (db.records || []).map(normalizeRecord)
+    const db = loadDatabase();
+    const queryUserId = requestUrl.searchParams.get('userId');
+    const authUserId = getUserIdFromRequest(req);
+    const requestedUserId = queryUserId || authUserId;
+    const records = (db.records || []).map(normalizeRecord);
 
     const filteredRecords = requestedUserId
       ? records.filter((record) => record.userId === requestedUserId)
-      : records
+      : records;
 
-    return sendJson(res, 200, filteredRecords)
+    return sendJson(res, 200, filteredRecords);
   }
 
   if (pathname.startsWith('/records')) {
-    const db = loadDatabase()
-    const records = db.records || []
-    const recordId = pathname.split('/')[2]
+    const db = loadDatabase();
+    const records = db.records || [];
+    const recordId = pathname.split('/')[2];
 
     if (req.method === 'GET' && recordId) {
-      const record = records.find((item) => item.id === recordId)
+      const record = records.find((item) => item.id === recordId);
 
       if (!record) {
-        return sendNotFound(res)
+        return sendNotFound(res);
       }
 
-      return sendJson(res, 200, normalizeRecord(record))
+      return sendJson(res, 200, normalizeRecord(record));
     }
 
     if (req.method === 'POST' && pathname === '/records') {
       try {
-        const payload = await collectBody(req)
-        const now = getKSTDateTimeString()
-        const createdAt = payload.createdAt || now
+        const payload = await collectBody(req);
+        const now = getKSTDateTimeString();
+        const createdAt = payload.createdAt || now;
         const nextRecord = normalizeRecord({
           ...payload,
           id: payload.id || `r${Date.now()}`,
           createdAt,
           updatedAt: createdAt,
-        })
+        });
 
-        records.push(nextRecord)
-        db.records = records
-        saveDatabase(db)
+        records.push(nextRecord);
+        db.records = records;
+        saveDatabase(db);
 
-        return sendJson(res, 201, nextRecord)
+        return sendJson(res, 201, nextRecord);
       } catch (error) {
         return sendJson(res, 400, {
           message: '내역 저장 중 오류가 발생했습니다.',
-        })
+        });
       }
     }
 
     if (req.method === 'PATCH' && recordId) {
       try {
-        const payload = await collectBody(req)
-        const recordIndex = records.findIndex((item) => item.id === recordId)
+        const payload = await collectBody(req);
+        const recordIndex = records.findIndex((item) => item.id === recordId);
 
         if (recordIndex === -1) {
-          return sendNotFound(res)
+          return sendNotFound(res);
         }
 
         const updatedRecord = normalizeRecord({
@@ -205,49 +287,51 @@ const server = http.createServer(async (req, res) => {
           ...payload,
           createdAt: records[recordIndex].createdAt || getKSTDateTimeString(),
           updatedAt: getKSTDateTimeString(),
-        })
+        });
 
-        records[recordIndex] = updatedRecord
-        db.records = records
-        saveDatabase(db)
+        records[recordIndex] = updatedRecord;
+        db.records = records;
+        saveDatabase(db);
 
-        return sendJson(res, 200, updatedRecord)
+        return sendJson(res, 200, updatedRecord);
       } catch (error) {
         return sendJson(res, 400, {
           message: '내역 수정 중 오류가 발생했습니다.',
-        })
+        });
       }
     }
 
     if (req.method === 'DELETE' && recordId) {
-      const recordIndex = records.findIndex((item) => item.id === recordId)
+      const recordIndex = records.findIndex((item) => item.id === recordId);
 
       if (recordIndex === -1) {
-        return sendNotFound(res)
+        return sendNotFound(res);
       }
 
-      records.splice(recordIndex, 1)
-      db.records = records
-      saveDatabase(db)
+      records.splice(recordIndex, 1);
+      db.records = records;
+      saveDatabase(db);
 
-      return sendJson(res, 200, { ok: true })
+      return sendJson(res, 200, { ok: true });
     }
   }
 
-  return sendNotFound(res)
-})
+  return sendNotFound(res);
+});
 
 server.on('error', (error) => {
   if (error.code === 'EADDRINUSE') {
-    console.error(`Port ${PORT} is already in use. Set a different PORT and try again.`)
-    console.error(`Example: $env:PORT=3003; node .\\server.js`)
-    process.exit(1)
+    console.error(
+      `Port ${PORT} is already in use. Set a different PORT and try again.`,
+    );
+    console.error(`Example: $env:PORT=3003; node .\\server.js`);
+    process.exit(1);
   }
 
-  console.error(error)
-  process.exit(1)
-})
+  console.error(error);
+  process.exit(1);
+});
 
 server.listen(PORT, () => {
-  console.log(`MOAMOA backend listening on http://localhost:${PORT}`)
-})
+  console.log(`MOAMOA backend listening on http://localhost:${PORT}`);
+});
