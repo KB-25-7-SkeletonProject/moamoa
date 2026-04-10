@@ -31,11 +31,13 @@
       >
         <span class="dayNumber">{{ day.date }}</span>
         <span v-if="day.checked" class="checkBadge">✓</span>
-        <span
-          v-if="day.mark === 'expense' || day.mark === 'income'"
-          :class="['markDot', day.mark === 'expense' ? 'markExpense' : 'markIncome']"
-          aria-hidden="true"
-        />
+        <span v-if="resolveMarks(day).length" class="markDots" aria-hidden="true">
+          <span
+            v-for="mark in resolveMarks(day)"
+            :key="`${day.date}-${mark}`"
+            :class="['markDot', mark === 'expense' ? 'markExpense' : 'markIncome']"
+          />
+        </span>
       </button>
     </div>
   </div>
@@ -101,6 +103,18 @@ function handleDayClick(day) {
   }
 
   emit('dayClick', day)
+}
+
+function resolveMarks(day) {
+  if (Array.isArray(day.marks)) {
+    return [...new Set(day.marks.filter((mark) => mark === 'income' || mark === 'expense'))]
+  }
+
+  if (day.mark === 'income' || day.mark === 'expense') {
+    return [day.mark]
+  }
+
+  return []
 }
 </script>
 
@@ -228,13 +242,19 @@ function handleDayClick(day) {
 }
 
 .markDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.markDots {
   position: absolute;
   bottom: 5px;
   left: 50%;
   transform: translateX(-50%);
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .markExpense {
