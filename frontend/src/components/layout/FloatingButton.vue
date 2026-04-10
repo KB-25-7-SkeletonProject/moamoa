@@ -3,8 +3,12 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
 const handleClick = () => {
-    console.log('클릭됨')
+    router.push('/entry')
 }
 </script>
 
