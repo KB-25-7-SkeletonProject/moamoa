@@ -1,5 +1,4 @@
 import api from './api'
-import { getStoredUserId } from '@/utils/auth'
 import {
   LEGACY_CATEGORY_ID_MAP,
   STATISTICS_BAR_COLORS,
@@ -376,12 +375,11 @@ export function createEmptyStatistics(date = new Date()) {
 }
 
 export async function fetchStatisticsData(userId, date) {
-  const targetUserId = userId || getStoredUserId()
   const monthDates = getMonthDates(date, 4)
 
   const [{ data: recordsData }, { data: categoriesData }] = await Promise.all([
     api.get(STATISTICS_ENDPOINTS.records, {
-      params: targetUserId ? { userId: targetUserId } : undefined,
+      params: userId ? { userId } : undefined,
     }),
     api.get(STATISTICS_ENDPOINTS.categories),
   ])

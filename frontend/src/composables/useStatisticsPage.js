@@ -1,12 +1,14 @@
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { createEmptyStatistics, fetchStatisticsData } from '@/services/statistics'
-import { getStoredUserId } from '@/utils/auth'
+import { useAuthStore } from '@/stores/authStore'
 
 export function useStatisticsPage() {
+  const authStore = useAuthStore()
   const isLoading = ref(true)
   const errorMessage = ref('')
   const selectedDate = ref(new Date())
   const statistics = ref(createEmptyStatistics(selectedDate.value))
+  const userId = computed(() => authStore.user?.id || null)
   let latestRequestId = 0
 
   async function loadStatistics() {
@@ -15,8 +17,15 @@ export function useStatisticsPage() {
     isLoading.value = true
     errorMessage.value = ''
 
+    if (!userId.value) {
+      errorMessage.value = '로그인 사용자 정보를 찾을 수 없습니다. 다시 로그인 해주세요.'
+      statistics.value = createEmptyStatistics(selectedDate.value)
+      isLoading.value = false
+      return
+    }
+
     try {
-      const data = await fetchStatisticsData(getStoredUserId(), selectedDate.value)
+      const data = await fetchStatisticsData(userId.value, selectedDate.value)
 
       if (requestId !== latestRequestId) {
         return
@@ -46,7 +55,7 @@ export function useStatisticsPage() {
     )
   }
 
-  watch(selectedDate, loadStatistics, { immediate: true })
+  watch([selectedDate, userId], loadStatistics, { immediate: true })
 
   return {
     errorMessage,
