@@ -1,7 +1,7 @@
 <template>
   <LayoutWrapper
     :title="dashboardTitle"
-    desc="로그인한 날짜에만 자동으로 출석 체크가 반영됩니다"
+    desc="오늘의 출석 현황과 기록을 한눈에 확인해보세요"
   >
     <div class="dashboard-page">
       <section class="hero-card card">
@@ -77,7 +77,7 @@ const checkedDates = ref(loadCheckedDates(user?.id))
 const todayRecords = ref([])
 
 const dashboardTitle = computed(() =>
-  user?.name ? `${user.name}님의 출석 대시보드` : '출석 대시보드'
+  user?.name ? `${user.name}님의 용돈기입장 MoaMoa` : '용돈기입장 MoaMoa'
 )
 
 const checkedDateSet = computed(() => new Set(checkedDates.value))
