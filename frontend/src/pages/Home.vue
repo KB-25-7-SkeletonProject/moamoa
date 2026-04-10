@@ -1,7 +1,7 @@
 <template>
   <LayoutWrapper
     :title="dashboardTitle"
-    desc="로그인한 날짜에만 자동으로 출석 체크가 반영됩니다"
+    desc="오늘의 출석 현황과 기록을 한눈에 확인해보세요"
   >
     <div class="dashboard-page">
       <section class="hero-card card">
@@ -14,7 +14,7 @@
         </div>
       </section>
 
-      <DashboardSection title="출석 체크">
+      <DashboardSection title="캘린더">
         <Calendar
           :year="displayYear"
           :month="displayMonth"
@@ -37,18 +37,21 @@
         </article>
       </section>
 
-      <DashboardSection title="최근 출석 기록">
+      <DashboardSection title="오늘의 기록">
         <div class="card recent-card">
-          <div v-if="recentCheckedDates.length" class="record-list">
-            <div v-for="item in recentCheckedDates" :key="item.key" class="record-row">
-              <div>
-                <p class="record-title">{{ item.label }}</p>
-                <p class="record-sub">로그인으로 자동 출석 처리되었습니다.</p>
-              </div>
-              <strong class="income">완료</strong>
-            </div>
+          <div v-if="todayRecords.length" class="record-list">
+            <RecordCard
+              v-for="record in todayRecords"
+              :key="record.id"
+              :category-id="record.categoryId"
+              :title="record.title"
+              :category="record.category"
+              :created-at="record.time"
+              :amount="record.amount"
+              :type="record.type"
+            />
           </div>
-          <p v-else class="empty-copy">아직 출석한 날짜가 없습니다.</p>
+          <p v-else class="empty-copy">아직 기록이 없어요!</p>
         </div>
       </DashboardSection>
     </div>
@@ -56,20 +59,25 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import Calendar from '@/components/common/Calendar.vue'
+import RecordCard from '@/components/common/RecordCard.vue'
 import DashboardSection from '@/components/dashboard/DashboardSection.vue'
 import LayoutWrapper from '@/components/layout/LayoutWrapper.vue'
+import { fetchTransactionGroups } from '@/services/transactions'
+import { flattenTransactionGroups } from '@/utils/transaction'
 
 const user = loadUser()
 const now = new Date()
+const todayDateKey = buildDateKey(now.getFullYear(), now.getMonth() + 1, now.getDate())
 const displayYear = ref(now.getFullYear())
 const displayMonth = ref(now.getMonth() + 1)
 const checkedDates = ref(loadCheckedDates(user?.id))
+const todayRecords = ref([])
 
 const dashboardTitle = computed(() =>
-  user?.name ? `${user.name}님의 출석 대시보드` : '출석 대시보드'
+  user?.name ? `${user.name}님의 용돈기입장 MoaMoa` : '용돈기입장 MoaMoa'
 )
 
 const checkedDateSet = computed(() => new Set(checkedDates.value))
@@ -107,17 +115,6 @@ const todayChecked = computed(() => {
   return checkedDateSet.value.has(todayKey)
 })
 
-const recentCheckedDates = computed(() =>
-  checkedDates.value
-    .filter((key) => key.startsWith(`${displayYear.value}-${pad(displayMonth.value)}-`))
-    .sort((a, b) => b.localeCompare(a))
-    .slice(0, 5)
-    .map((key) => ({
-      key,
-      label: formatDateLabel(key),
-    }))
-)
-
 const streakCount = computed(() => {
   let streak = 0
   const cursor = new Date(now)
@@ -144,6 +141,23 @@ watch(
   },
   { deep: true }
 )
+
+onMounted(async () => {
+  if (!user?.id) {
+    recentRecords.value = []
+    return
+  }
+
+  try {
+    const groups = await fetchTransactionGroups({ userId: user.id })
+    todayRecords.value = flattenTransactionGroups(groups).filter(
+      (record) => record.dateKey === todayDateKey,
+    )
+  } catch (error) {
+    todayRecords.value = []
+    console.error('오늘 기록을 불러오지 못했습니다.', error)
+  }
+})
 
 function moveMonth(step) {
   const next = new Date(displayYear.value, displayMonth.value - 1 + step, 1)
@@ -194,10 +208,6 @@ function pad(value) {
   return String(value).padStart(2, '0')
 }
 
-function formatDateLabel(key) {
-  const [year, month, date] = key.split('-')
-  return `${year}년 ${Number(month)}월 ${Number(date)}일`
-}
 </script>
 
 <style scoped>
@@ -217,54 +227,23 @@ function formatDateLabel(key) {
   display: grid;
 }
 
-.record-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.record-row:last-child {
-  border-bottom: 0;
-}
-
-.record-title,
-.record-sub,
 .empty-copy {
   margin: 0;
 }
 
-.record-title {
+.empty-copy {
+  font-size: var(--font-size-15);
   font-weight: var(--font-weight-700);
-  color: var(--text);
-}
-
-.record-sub,
-.empty-copy {
-  margin-top: 4px;
-  font-size: var(--font-size-12);
   color: var(--text-muted);
+  text-align: center;
 }
 
 .empty-copy {
-  padding: 20px 0;
+  padding: 28px 0;
 }
 
-.income {
-  color: var(--income);
-}
-
-@media (min-width: 768px) {
-  .dashboard-page {
-    padding: 20px 32px;
-  }
-}
-
-@media (min-width: 1280px) {
-  .dashboard-page {
-    padding: 24px 48px;
-  }
+.record-list {
+  display: grid;
+  gap: 12px;
 }
 </style>
