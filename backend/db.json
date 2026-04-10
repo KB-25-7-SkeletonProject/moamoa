@@ -172,6 +172,17 @@
     "date": "2026-04-03",
     "createdAt": "2026-04-03T09:00:00",
     "updatedAt": "2026-04-03T09:00:00"
+  },
+  {
+    "id": "r153",
+    "userId": "u001",
+    "type": "expense",
+    "amount": 30000,
+    "categoryId": "c001",
+    "memo": "밥먹음",
+    "date": "2026-04-03",
+    "createdAt": "2026-04-03T10:00:00",
+    "updatedAt": "2026-04-03T010:00:00"
   }
 ],
   "categories": [

@@ -1,7 +1,7 @@
 <template>
   <section class="day-section">
     <header class="day-header">
-      <h3 class="day-title">{{ title }}</h3>
+      <h3 class="day-title">{{ formattedTitle }}</h3>
       <span :class="['day-total', totalType]">{{ total }}</span>
     </header>
 
@@ -24,9 +24,10 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { Card, Divider, RecordCard } from '@/components/common'
 
-defineProps({
+const props = defineProps({
   title: String,
   total: String,
   totalType: {
@@ -37,6 +38,15 @@ defineProps({
     type: Array,
     default: () => []
   }
+})
+
+const formattedTitle = computed(() => {
+  const raw = props.title || ''
+  const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!match) return raw
+
+  const [, year, month, day] = match
+  return `${year}년 ${Number(month)}월 ${Number(day)}일`
 })
 </script>
 

@@ -1,42 +1,46 @@
 <template>
-  <LayoutWrapper title="설정" desc="앱 기본 설정과 화면 옵션을 관리해보세요">
+  <LayoutWrapper title="설정" desc="계정 및 앱 설정">
     <section class="page-body">
-      <h2 class="page-title">설정 화면</h2>
-      <p class="page-copy">이 화면은 하단 네비게이션 이동 확인용 기본 페이지입니다.</p>
+      <button class="logout-btn" @click="handleLogout">
+        로그아웃
+      </button>
     </section>
   </LayoutWrapper>
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/authStore'
 import LayoutWrapper from '@/components/layout/LayoutWrapper.vue'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const handleLogout = () => {
+  authStore.logout()
+  router.push('/login')
+}
 </script>
 
 <style scoped>
 .page-body {
-  width: min(100%, 1280px);
-  margin: 0 auto;
-  padding: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
 }
 
-.page-title {
-  margin: 0;
-  font-size: var(--font-size-18);
+.logout-btn {
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  background-color: #ef4444;
+  color: white;
+  cursor: pointer;
 }
 
-.page-copy {
-  margin: 8px 0 0;
-  color: var(--text-muted);
-}
-
-@media (min-width: 768px) {
-  .page-body {
-    padding: 20px 32px;
-  }
-}
-
-@media (min-width: 1280px) {
-  .page-body {
-    padding: 24px 48px;
-  }
+.logout-btn:hover {
+  background-color: #dc2626;
 }
 </style>
