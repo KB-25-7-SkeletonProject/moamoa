@@ -232,7 +232,9 @@ async function loadEditRecord() {
   display: grid;
   gap: 16px;
 }
-
+:deep(.floating) {
+  display: none !important;
+}
 .page-section {
   padding: 0;
 }
