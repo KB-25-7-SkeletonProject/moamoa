@@ -23,6 +23,7 @@
       <CategoryChip
         v-for="item in typeOptions"
         :key="item.value"
+        class="filter-chip type-chip"
         :label="item.label"
         :active="item.value === selectedType"
         :on-click="() => emit('update:selectedType', item.value)"
@@ -38,12 +39,14 @@
       </div>
 
       <CategoryChip
+        class="filter-chip"
         :label="categoryLabel"
         :active="isCategoryOpen || isCategoryActive"
         :on-click="() => emit('toggle-category')"
       />
 
       <CategoryChip
+        class="filter-chip"
         :label="dateLabel"
         :active="dateLabel !== '날짜'"
         :on-click="() => emit('open-date')"
@@ -185,5 +188,36 @@ function clearQuery() {
   font-size: var(--font-size-12);
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .filter-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    overflow: visible;
+    align-items: stretch;
+  }
+
+  .month-wrap {
+    min-width: 0;
+  }
+
+  .month-wrap :deep(.select) {
+    width: 100%;
+    min-width: 0;
+    padding: 8px 24px 8px 10px;
+    font-size: 11px;
+  }
+
+  .filter-row :deep(.chip) {
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+    padding: 8px 8px;
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 </style>
