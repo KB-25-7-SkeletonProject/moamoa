@@ -121,6 +121,7 @@ const transactionGroups = ref([])
 const visibleGroupCount = ref(PAGE_SIZE)
 const loadMoreSentinel = ref(null)
 let loadMoreObserver = null
+let lastScrollY = 0
 
 const dateFilter = ref({
   mode: 'single',
@@ -234,8 +235,20 @@ function openRecordDetail(recordId) {
   router.push(`/records/${recordId}`)
 }
 
+function handleWindowScroll() {
+  const currentY = window.scrollY || 0
+
+  if (isTransactionCategoryOpen.value && Math.abs(currentY - lastScrollY) > 2) {
+    isTransactionCategoryOpen.value = false
+  }
+
+  lastScrollY = currentY
+}
+
 onMounted(async () => {
   await fetchData()
+  lastScrollY = window.scrollY || 0
+  window.addEventListener('scroll', handleWindowScroll, { passive: true })
 
   if (typeof IntersectionObserver === 'undefined' || !loadMoreSentinel.value) {
     return
@@ -256,6 +269,8 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleWindowScroll)
+
   if (loadMoreObserver) {
     loadMoreObserver.disconnect()
   }
