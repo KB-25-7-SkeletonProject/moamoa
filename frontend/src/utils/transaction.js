@@ -123,19 +123,11 @@ export function sortTransactionGroups(groups, selectedSort) {
   }
 
   if (selectedSort === 'amountDesc') {
-    return copied.sort(
-      (a, b) =>
-        Math.max(...b.records.map((record) => record.amountValue)) -
-        Math.max(...a.records.map((record) => record.amountValue)),
-    )
+    return buildAmountSortedGroups(copied, 'desc')
   }
 
   if (selectedSort === 'amountAsc') {
-    return copied.sort(
-      (a, b) =>
-        Math.min(...a.records.map((record) => record.amountValue)) -
-        Math.min(...b.records.map((record) => record.amountValue)),
-    )
+    return buildAmountSortedGroups(copied, 'asc')
   }
 
   return copied
@@ -177,4 +169,36 @@ function sortTransactionRecords(records, selectedSort) {
   }
 
   return records
+}
+
+function buildAmountSortedGroups(groups, direction) {
+  const records = groups.flatMap((group) => group.records)
+  const sortedRecords = [...records].sort((a, b) => {
+    if (a.amountValue === b.amountValue) {
+      return b.dateOrder - a.dateOrder || b.time.localeCompare(a.time)
+    }
+
+    return direction === 'desc'
+      ? b.amountValue - a.amountValue
+      : a.amountValue - b.amountValue
+  }).map((record) => ({
+    ...record,
+    // 금액 정렬 모드에서는 날짜 그룹 헤더가 없으므로 카드 메타에 날짜를 함께 노출한다.
+    time: `${formatDateLabel(record.date)} · ${record.time}`,
+  }))
+
+  const signedTotal = sortedRecords.reduce(
+    (sum, record) => sum + (record.type === 'income' ? record.amountValue : -record.amountValue),
+    0,
+  )
+
+  return [
+    {
+      title: direction === 'desc' ? '금액 높은순' : '금액 낮은순',
+      records: sortedRecords,
+      totalAmountValue: signedTotal,
+      total: formatExactCurrency(signedTotal, signedTotal >= 0),
+      totalType: signedTotal >= 0 ? 'income' : 'expense',
+    },
+  ]
 }

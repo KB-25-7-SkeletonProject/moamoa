@@ -67,4 +67,27 @@ defineEmits(['update:selectedSort'])
 .sort-options::-webkit-scrollbar {
   display: none;
 }
+
+.sort-options :deep(.chip) {
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .sort-bar {
+    align-items: flex-start;
+  }
+
+  .sort-options {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    overflow: visible;
+    gap: 6px;
+  }
+
+  .sort-options :deep(.chip) {
+    font-size: 11px;
+    padding: 5px 9px;
+    line-height: 1.1;
+  }
+}
 </style>
