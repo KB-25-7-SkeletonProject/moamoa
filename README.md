@@ -71,32 +71,32 @@
 
 ## 🚀 기술 스택
 
-#### Frontend
+### Frontend
 
-<img src="https://img.shields.io/badge/vue.js-4FC08D?style=flat&logo=vuedotjs&logoColor=white"/>
-<img src="https://img.shields.io/badge/vite-9135FF?style=flat&logo=vite&logoColor=white"/>
-<img src="https://img.shields.io/badge/axios-5A29E4?style=flat&logo=axios&logoColor=white"/>
-<img src="https://img.shields.io/badge/pinia-FFD859?style=flat&logo=pinia&logoColor=white"/>
-
-
-#### Backend
-
-<img src="https://img.shields.io/badge/node.js-5FA04E?style=flat&logo=node.js&logoColor=white"/>
-
-#### DB
-
-<img src="https://img.shields.io/badge/db.json-000000?style=flat&logo=json&logoColor=white"/>
+<img src="https://img.shields.io/badge/vue.js-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white"/>
+<img src="https://img.shields.io/badge/vite-9135FF?style=for-the-badge&logo=vite&logoColor=white"/>
+<img src="https://img.shields.io/badge/axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white"/>
+<img src="https://img.shields.io/badge/pinia-FFD859?style=for-the-badge&logo=pinia&logoColor=white"/>
 
 
-#### Design
+### Backend
 
-<img src="https://img.shields.io/badge/figma-F24E1E?style=flat&logo=figma&logoColor=white"/>
+<img src="https://img.shields.io/badge/node.js-5FA04E?style=for-the-badge&logo=node.js&logoColor=white"/>
 
-#### Collaboration
+### DB
 
-<img src="https://img.shields.io/badge/git-F05032?style=flat&logo=git&logoColor=white"/>
-<img src="https://img.shields.io/badge/github-181717?style=flat&logo=github&logoColor=white"/>
-<img src="https://img.shields.io/badge/notion-000000?style=flat&logo=notion&logoColor=white"/>
+<img src="https://img.shields.io/badge/db.json-000000?style=for-the-badge&logo=json&logoColor=white"/>
+
+
+### Design
+
+<img src="https://img.shields.io/badge/figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white"/>
+
+### Collaboration
+
+<img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white"/>
+<img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white"/>
+<img src="https://img.shields.io/badge/notion-000000?style=for-the-badge&logo=notion&logoColor=white"/>
 
 
 | 구분 | 기술 | 사용 이유 |
