@@ -3,16 +3,17 @@
 
 ## 💸 프로젝트 소개
 
-<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/2e225a1c-2766-4e84-a3c0-129b4fd3e411" />
-
 **모아모아**는 일상 속 수입·지출을 쉽고 빠르게 기록하고, 캘린더, 통계 등을 통해 소비 흐름까지 직관적으로 확인할 수 있는 Vue 기반 **가계부 서비스**입니다.
 
-#### 프로젝트 목적
+<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/2e225a1c-2766-4e84-a3c0-129b4fd3e411" />
+
+
+### 프로젝트 목적
 - 학습 기술의 실전 적용
 - 전체 개발 프로세스 경험
 - 협업 및 문제 해결 능력 향상
 
-#### 주요 기능
+### 주요 기능
 - 수입/지출 기록
 - 거래 내역 조회
 - 월별 재정 요약
@@ -70,7 +71,7 @@
 
 ## 🚀 기술 스택
 
-**Frontend**
+#### Frontend
 
 <img src="https://img.shields.io/badge/vue.js-4FC08D?style=flat&logo=vuedotjs&logoColor=white"/>
 <img src="https://img.shields.io/badge/vite-9135FF?style=flat&logo=vite&logoColor=white"/>
@@ -78,20 +79,20 @@
 <img src="https://img.shields.io/badge/pinia-FFD859?style=flat&logo=pinia&logoColor=white"/>
 
 
-**Backend**
+#### Backend
 
 <img src="https://img.shields.io/badge/node.js-5FA04E?style=flat&logo=node.js&logoColor=white"/>
 
-**DB**
+#### DB
 
 <img src="https://img.shields.io/badge/db.json-000000?style=flat&logo=json&logoColor=white"/>
 
 
-**Design**
+#### Design
 
 <img src="https://img.shields.io/badge/figma-F24E1E?style=flat&logo=figma&logoColor=white"/>
 
-**Collaboration**
+#### Collaboration
 
 <img src="https://img.shields.io/badge/git-F05032?style=flat&logo=git&logoColor=white"/>
 <img src="https://img.shields.io/badge/github-181717?style=flat&logo=github&logoColor=white"/>
